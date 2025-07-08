@@ -52,7 +52,7 @@ class ImageSet(object):
         captures.sort()
 
     @classmethod
-    def from_directory(cls, directory, progress_callback=None, exiftool_path=None, allow_uncalibrated=False):
+    def from_directory(cls, directory, progress_callback=None, allow_uncalibrated=False):
         """
         Create and ImageSet recursively from the files in a directory
         """
@@ -64,10 +64,7 @@ class ImageSet(object):
 
         images = []
 
-        if exiftool_path is None and os.environ.get('exiftoolpath') is not None:
-            exiftool_path = os.path.normpath(os.environ.get('exiftoolpath'))
-
-        with exiftool.ExifToolHelper(exiftool_path) as exift:
+        with exiftool.ExifToolHelper() as exift:
             for i, path in enumerate(matches):
                 images.append(image.Image(path, exiftool_obj=exift, allow_uncalibrated=allow_uncalibrated))
                 if progress_callback is not None:

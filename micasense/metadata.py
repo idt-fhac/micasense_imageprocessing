@@ -36,16 +36,11 @@ import pytz
 class Metadata(object):
     """ Container for Micasense image metadata"""
 
-    def __init__(self, filename: str, exiftool_path=None, exiftool_obj=None):
+    def __init__(self, filename: str, exiftool_obj=None):
         if exiftool_obj is not None:
             self.exif = exiftool_obj.get_metadata(filename)
             return
-        if exiftool_path is not None:
-            self.exiftoolPath = exiftool_path
-        elif os.environ.get('exiftoolpath') is not None:
-            self.exiftoolPath = os.path.normpath(os.environ.get('exiftoolpath'))
-        else:
-            self.exiftoolPath = None
+
         if not os.path.isfile(filename):
             raise IOError("Input path is not a file")
         with exiftool.ExifToolHelper() as exift:
