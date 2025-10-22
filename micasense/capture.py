@@ -901,9 +901,7 @@ class Capture(object):
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
-                if verbose > 0:
-                    logger.info('no match for index %d', ix)
+                raise Exception(f'no match for index {ix}')
             models.append(P)
             kp_image.append(kpi)
             kp_ref.append(kpr)

@@ -41,7 +41,10 @@ class Metadata(object):
 
     def __init__(self, filename: str, exiftool_obj=None):
         if exiftool_obj is not None:
-            self.exif = exiftool_obj.get_metadata(filename)
+            try:
+                self.exif = exiftool_obj.get_metadata(filename)
+            except Exception as e:
+                logger.error("error calling metadata for %s - %s", filename, e)
             return
 
         if not os.path.isfile(filename):
