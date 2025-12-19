@@ -757,13 +757,11 @@ class Capture(object):
 
     @staticmethod
     def find_inliers(kp_image, kp_ref, matches, *, random_seed: int = 9):
-
-        rng = np.random.default_rng(random_seed)
         model, inliers = ransac((kp_image[matches[:, 0]],
                                  kp_ref[matches[:, 1]]),
                                 FundamentalMatrixTransform, min_samples=8,
                                 residual_threshold=.25, max_trials=5000,
-                                random_state=rng)
+                                rng=random_seed)
         inlier_keypoints_image = kp_image[matches[inliers, 0]]
         inlier_keypoints_ref = kp_ref[matches[inliers, 1]]
         n = len(inlier_keypoints_ref)
