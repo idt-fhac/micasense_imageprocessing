@@ -630,6 +630,145 @@ class Capture(object):
             if write_exif:
                 imageutils.write_exif_to_stack(self, outfilename)
 
+    def save_channels_as_separate_tiffs(self, output_directory, out_filename, sort_by_wavelength=False, photometric='MINISBLACK',
+                                        pansharpen=False, write_exif=True):
+        """
+        Output the Images in the Capture object as separate GTiff images for each channel.
+        :param output_directory: str, the directory to save the TIFF files
+        :param sort_by_wavelength: boolean, sort channels by wavelength
+        :param photometric: str, GDAL argument for GTiff color matching
+        :param pansharpen: boolean, if true perform panchromatic sharpening
+        :param write_exif: boolean, if true write EXIF metadata to TIFF files
+        """
+
+        # from osgeo import gdal, osr
+        from osgeo.gdal import GetDriverByName, GDT_UInt16
+        from osgeo import gdal
+        gdal.UseExceptions()
+
+        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+            raise RuntimeError(
+                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs.")
+        band_names = self.band_names()
+        if "Panchro" in band_names and pansharpen:
+            aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[0]
+        elif "Panchro" in band_names and not pansharpen:
+            aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[1]
+        else:
+            aligned_cap = self.__aligned_capture
+
+        rows, cols, bands = aligned_cap.shape
+
+        if sort_by_wavelength:
+            eo_list = list(np.argsort(np.array(self.center_wavelengths())[self.eo_indices()]))
+            eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
+        else:
+            eo_list = self.eo_indices()
+            eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
+
+        eo_count = len(eo_list)
+        multispec_min = np.min(np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 0.01))
+        multispec_max = np.max(np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 99.99))
+
+        outfilenames = []
+        for outband_count, inband in enumerate(eo_list):
+            bandname = eo_bands[outband_count]
+            bandname = bandname.replace(" ", "")
+            outfilename = os.path.join(output_directory, out_filename + str(outband_count+1) + f"_{bandname}.tif")
+            # outfilename.replace(" ", "")
+            outfilenames.append(outfilename)
+            # print(outfilename)
+            # print(f"Zeilen: {cols}, Spalten: {rows}")
+            driver = GetDriverByName('GTiff')
+            outRaster = driver.Create(outfilename, cols, rows, 1, GDT_UInt16, 
+                                      options=['INTERLEAVE=BAND', 'COMPRESS=DEFLATE', f'PHOTOMETRIC={photometric}'])
+            if outRaster is None:
+                raise IOError(f"Failed to create TIFF file at {outfilename}, Please check path, permissions and disk space.")
+            outband = outRaster.GetRasterBand(1)
+            outdata = imageutils.normalize(aligned_cap[:, :, inband], multispec_min, multispec_max)
+            outdata[outdata < 0] = 0
+            outdata[outdata > 2] = 2  # limit reflectance data to 200% to allow some specular reflections
+            outdata = outdata * 32767  # scale reflectance images so 100% = 32768
+            outdata[outdata < 0] = 0
+            outdata[outdata > 65535] = 65535
+            outband.WriteArray(outdata)
+            outband.SetDescription(eo_bands[outband_count])
+            outband.FlushCache()
+            if write_exif:
+                # Add EXIF metadata writing functionality here for each TIFF, if applicable.
+                imageutils.write_exif_to_stack(self, outfilename)
+                pass
+
+        return outfilenames
+    
+    def save_channels_as_separate_tiffs_with_no_normalization(self, output_directory, out_filename,
+            sort_by_wavelength=False, photometric='MINISBLACK',pansharpen=False, write_exif=True):
+        """
+        Output the Images in the Capture object as separate GTiff images for each channel.
+        :param output_directory: str, the directory to save the TIFF files
+        :param sort_by_wavelength: boolean, sort channels by wavelength
+        :param photometric: str, GDAL argument for GTiff color matching
+        :param pansharpen: boolean, if true perform panchromatic sharpening
+        :param write_exif: boolean, if true write EXIF metadata to TIFF files
+        """
+        from osgeo.gdal import GetDriverByName, GDT_UInt16
+        from osgeo import gdal
+        gdal.UseExceptions()
+
+        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+            raise RuntimeError(
+                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs.")
+        band_names = self.band_names()
+        if "Panchro" in band_names and pansharpen:
+            aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[0]
+        elif "Panchro" in band_names and not pansharpen:
+            aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[1]
+        else:
+            aligned_cap = self.__aligned_capture
+
+        rows, cols, _ = aligned_cap.shape
+
+        if sort_by_wavelength:
+            eo_list = list(np.argsort(np.array(self.center_wavelengths())[self.eo_indices()]))
+            eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
+        else:
+            eo_list = self.eo_indices()
+            eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
+
+        driver = GetDriverByName('GTiff')
+
+        tiff_paths = []
+        for out_idx, inband in enumerate(eo_list):
+            bandname = eo_bands[out_idx].replace(" ", "")
+            
+            tif_path = os.path.join(
+                output_directory, f"{out_filename}_{out_idx}_{bandname}.tif")
+            tiff_paths.append(tif_path)
+            ds = driver.Create(tif_path, cols, rows, 1, GDT_UInt16,
+                            options=['INTERLEAVE=BAND',
+                                        'COMPRESS=DEFLATE',
+                                        f'PHOTOMETRIC={photometric}'])
+            if ds is None:
+                raise IOError(f"Cannot create {tif_path}")
+            
+            SCALE = 32768            # 100 % Reflexion → 32768 
+
+            
+
+            band = ds.GetRasterBand(1)
+            raw = aligned_cap[:, :, inband]
+            u16  = np.clip(raw * SCALE, 0, 65535).astype('uint16')
+            band.WriteArray(u16)
+            band.DeleteNoDataValue()
+            band.SetDescription(eo_bands[out_idx])
+            band.FlushCache(); ds.FlushCache()
+            ds = None # close dataset
+
+            if write_exif:
+                imageutils.write_exif_to_stack(self, tif_path)
+
+        return  tiff_paths
+
     def save_capture_as_rgb(self, outfilename, gamma=1.4, downsample=1, white_balance='norm', hist_min_percent=0.5,
                             hist_max_percent=99.5, sharpen=True, rgb_band_indices=None):
         """
