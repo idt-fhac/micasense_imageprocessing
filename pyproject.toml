@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "micasense"
+description = "Micasense Image Processing"
+dynamic = ["version"]
+authors = [
+    { name = "MicaSense, Inc.", email = "github@micasense.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "requests",
+    "numpy",
+    "opencv-python",
+    "gdal",
+    "pysolar",
+    "matplotlib",
+    "scikit-image",
+    "packaging",
+    "pyexiftool",
+    "pytz",
+    "pyzbar"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["micasense"]
+
+[tool.setuptools.dynamic]
+version = { attr = "micasense.__version__" }
+
+[project.urls]
+Homepage = "https://github.com/micasense/imageprocessing"
