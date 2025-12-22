@@ -151,40 +151,40 @@ def test_fresnel():
 def test_get_orientation_zenith():
     pose = (math.radians(0), math.radians(0), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([0, 0, -1])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([0, 0, -1])
 
 
 def test_get_orientation_north():
     pose = (math.radians(0), math.radians(-90), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([1, 0, 0])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([1, 0, 0])
 
 
 def test_get_orientation_east():
     pose = (math.radians(90), math.radians(-90), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([0, 1, 0])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([0, 1, 0])
 
 
 def test_get_orientation_south():
     pose = (math.radians(0), math.radians(90), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([-1, 0, 0])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([-1, 0, 0])
 
 
 def test_get_orientation_south2():
     pose = (math.radians(180), math.radians(-90), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([-1, 0, 0])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([-1, 0, 0])
 
 
 def test_get_orientation_west():
     pose = (math.radians(-90), math.radians(-90), math.radians(0))
     orientation = [0, 0, -1]
-    ned = dls.get_orientation(pose, orientation)
-    assert ned == pytest.approx([0, -1, 0])
+    needed = dls.get_orientation(pose, orientation)
+    assert needed == pytest.approx([0, -1, 0])

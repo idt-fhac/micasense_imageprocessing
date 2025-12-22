@@ -127,7 +127,7 @@ def panel_altum_file_list(altum_files_dir):
 
 @pytest.fixture()
 def panel_altum_capture(panel_altum_file_list):
-    imgs = [image.Image(fle) for fle in panel_altum_file_list]
+    imgs = [image.Image(file) for file in panel_altum_file_list]
     return capture.Capture(imgs)
 
 
@@ -138,7 +138,7 @@ def non_panel_altum_file_list(altum_files_dir: Path):
 
 @pytest.fixture()
 def non_panel_altum_capture(non_panel_altum_file_list):
-    imgs = [image.Image(fle) for fle in non_panel_altum_file_list]
+    imgs = [image.Image(file) for file in non_panel_altum_file_list]
     return capture.Capture(imgs)
 
 
