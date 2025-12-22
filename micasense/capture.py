@@ -793,7 +793,7 @@ class Capture(object):
         else:
             aligned_capture = self.__aligned_capture
         im_display = np.zeros((aligned_capture.shape[0], aligned_capture.shape[1], aligned_capture.shape[2]),
-                              dtype=np.float32)
+                              dtype=float)
 
         im_min = np.percentile(aligned_capture[:, :, rgb_band_indices].flatten(),
                                hist_min_percent)  # modify these percentiles to adjust contrast
@@ -851,7 +851,7 @@ class Capture(object):
             lw_index = self.lw_indices()[0]
         masked_thermal = aligned_capture[:, :, lw_index]
 
-        im_display = np.zeros((aligned_capture.shape[0], aligned_capture.shape[1], 3), dtype=np.float32)
+        im_display = np.zeros((aligned_capture.shape[0], aligned_capture.shape[1], 3), dtype=float)
         rgb_band_indices = [self.band_names_lower().index('red'),
                             self.band_names_lower().index('green'),
                             self.band_names_lower().index('blue')]

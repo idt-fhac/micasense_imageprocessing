@@ -186,15 +186,15 @@ class Panel(object):
             s = 50
             T = np.array([0, -130.84])
 
-        reference_panel_pts = np.asarray([[-s, s], [s, s], [s, -s], [-s, -s]], dtype=np.float32) * .5 + T
-        reference_qr_pts = np.asarray([[-p, p], [p, p], [p, -p], [-p, -p]], dtype=np.float32)
+        reference_panel_pts = np.asarray([[-s, s], [s, s], [s, -s], [-s, -s]], dtype=float) * .5 + T
+        reference_qr_pts = np.asarray([[-p, p], [p, p], [p, -p], [-p, -p]], dtype=float)
         bounds = []
         costs = []
         for rotation in range(0, 4):
             qr_points = np.roll(reference_qr_pts, rotation, axis=0)
 
-            src = np.asarray([tuple(row) for row in qr_points[:]], np.float32)
-            dst = np.asarray([tuple(row) for row in self.qr_corners()[:]], np.float32)
+            src = np.asarray([tuple(row) for row in qr_points[:]], float)
+            dst = np.asarray([tuple(row) for row in self.qr_corners()[:]], float)
 
             # we determine the homography from the 4 corner points
             warp_matrix = cv2.getPerspectiveTransform(src, dst)

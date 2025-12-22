@@ -119,7 +119,7 @@ def findoptimal_rect_noholes(overlap, nbands=5):
 # end helper functions for finding a "hole"-free rectangle
 def normalize(im, local_min=None, local_max=None):
     width, height = im.shape
-    norm = np.zeros((width, height), dtype=np.float32)
+    norm = np.zeros((width, height), dtype=float)
     if local_min is not None and local_max is not None:
         norm = (im - local_min) / (local_max - local_min)
     else:
@@ -195,11 +195,11 @@ def align(pair):
 
     # Initialize the matrix to identity
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
-        # warp_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]], dtype=np.float32)
+        # warp_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]], dtype=float)
         warp_matrix = pair['warp_matrix_init']
     else:
-        # warp_matrix = np.array([[1,0,0],[0,1,0]], dtype=np.float32)
-        warp_matrix = np.array([[1, 0, translations[1]], [0, 1, translations[0]]], dtype=np.float32)
+        # warp_matrix = np.array([[1,0,0],[0,1,0]], dtype=float)
+        warp_matrix = np.array([[1, 0, translations[1]], [0, 1, translations[0]]], dtype=float)
 
     w = pair['ref_image'].shape[1]
 
@@ -260,9 +260,9 @@ def align(pair):
 
             if level != nol:  # scale up only the offset by a factor of 2 for the next (larger image) pyramid level
                 if warp_mode == cv2.MOTION_HOMOGRAPHY:
-                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2], [0.5, 0.5, 1]], dtype=np.float32)
+                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2], [0.5, 0.5, 1]], dtype=float)
                 else:
-                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2]], dtype=np.float32)
+                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2]], dtype=float)
 
     return {'ref_index': pair['ref_index'],
             'match_index': pair['match_index'],
@@ -271,9 +271,9 @@ def align(pair):
 
 def default_warp_matrix(warp_mode):
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
-        return np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
+        return np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
     else:
-        return np.array([[1, 0, 0], [0, 1, 0]], dtype=np.float32)
+        return np.array([[1, 0, 0], [0, 1, 0]], dtype=float)
 
 
 def align_capture(capture, ref_index=None, warp_mode=cv2.MOTION_HOMOGRAPHY, max_iterations=2500, epsilon_threshold=1e-9,
@@ -313,7 +313,7 @@ def align_capture(capture, ref_index=None, warp_mode=cv2.MOTION_HOMOGRAPHY, max_
                                     'match_index': img.band_index,
                                     'match_image': img.undistorted(img.radiance()).astype('float32'),
                                     'translations': translations,
-                                    'warp_matrix_init': np.array(warp_matrices_init[i], dtype=np.float32),
+                                    'warp_matrix_init': np.array(warp_matrices_init[i], dtype=float),
                                     'debug': debug,
                                     'pyramid_levels': pyramid_levels})
     warp_matrices = [None] * len(alignment_pairs)
@@ -359,7 +359,7 @@ def aligned_capture(capture, warp_matrices, warp_mode, cropped_dimensions, match
                     interpolation_mode=cv2.INTER_LANCZOS4):
     width, height = capture.images[match_index].size()
 
-    im_aligned = np.zeros((height, width, len(warp_matrices)), dtype=np.float32)
+    im_aligned = np.zeros((height, width, len(warp_matrices)), dtype=float)
 
     for i in range(0, len(warp_matrices)):
         if img_type == 'reflectance':
@@ -512,13 +512,13 @@ def min_max(pts):
 
 def map_points(pts, image_size, warpMatrix, distortion_coeffs, camera_matrix, warp_mode=cv2.MOTION_HOMOGRAPHY):
     # extra dimension makes opencv happy
-    pts = np.array([pts], dtype=np.float)
+    pts = np.array([pts], dtype=float)
     new_cam_mat, _ = cv2.getOptimalNewCameraMatrix(camera_matrix, distortion_coeffs, image_size, 1)
     new_pts = cv2.undistortPoints(pts, camera_matrix, distortion_coeffs, P=new_cam_mat)
     if warp_mode == cv2.MOTION_AFFINE:
         new_pts = cv2.transform(new_pts, cv2.invertAffineTransform(warpMatrix))
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
-        new_pts = cv2.perspectiveTransform(new_pts, np.linalg.inv(warpMatrix).astype(np.float32))
+        new_pts = cv2.perspectiveTransform(new_pts, np.linalg.inv(warpMatrix).astype(float))
     # apparently the output order has changed in 4.1.1 (possibly earlier from 3.4.3)
     if cv2.__version__ <= '3.4.4':
         return new_pts[0]
@@ -565,7 +565,7 @@ def brovey_pan_sharpen(thecapture, weights=None):
         nir = input_stack[:, :, 3]
         panchro = input_stack[:, :, 5]
         output_band_count = input_stack.shape[2] - 1
-        output_stack = np.zeros((input_stack.shape[0], input_stack.shape[1], output_band_count), dtype=np.float32)
+        output_stack = np.zeros((input_stack.shape[0], input_stack.shape[1], output_band_count), dtype=float)
         spectral_weight = np.zeros_like(panchro)
         for band in range(0, 5):
             spectral_weight += input_stack[:, :, band] * weights[band]
