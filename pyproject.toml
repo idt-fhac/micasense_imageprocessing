@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "setuptools-scm"]
+requires = ["setuptools>=80.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,11 +7,12 @@ name = "micasense"
 description = "Micasense Image Processing"
 dynamic = ["version"]
 authors = [
+    { name = "Florian Maurer", email = "maurer@fh-aachen.de" },
     { name = "MicaSense, Inc.", email = "github@micasense.com" }
 ]
-license = { text = "MIT" }
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [
     "requests",
     "numpy",
@@ -29,9 +30,11 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["micasense"]
+exclude = ["data*", "tests*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "micasense.__version__" }
 
 [project.urls]
-Homepage = "https://github.com/micasense/imageprocessing"
+Homepage = "https://github.com/brainergylab/micasense_imageprocessing"
+
