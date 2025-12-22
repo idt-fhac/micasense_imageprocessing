@@ -27,6 +27,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 import fnmatch
 import multiprocessing
 import os
@@ -52,21 +53,27 @@ class ImageSet(object):
         captures.sort()
 
     @classmethod
-    def from_directory(cls, directory, progress_callback=None, allow_uncalibrated=False):
+    def from_directory(
+        cls, directory, progress_callback=None, allow_uncalibrated=False
+    ):
         """
         Create and ImageSet recursively from the files in a directory
         """
         cls.basedir = directory
         matches = []
         for root, dirnames, filenames in os.walk(directory):
-            for filename in fnmatch.filter(filenames, '*.tif'):
+            for filename in fnmatch.filter(filenames, "*.tif"):
                 matches.append(os.path.join(root, filename))
 
         images = []
 
         with exiftool.ExifToolHelper() as exift:
             for i, path in enumerate(matches):
-                images.append(image.Image(path, exiftool_obj=exift, allow_uncalibrated=allow_uncalibrated))
+                images.append(
+                    image.Image(
+                        path, exiftool_obj=exift, allow_uncalibrated=allow_uncalibrated
+                    )
+                )
                 if progress_callback is not None:
                     progress_callback(float(i) / float(len(matches)))
 
@@ -98,10 +105,15 @@ class ImageSet(object):
         :return: List data from all Captures, List column headers.
         """
         columns = [
-            'timestamp',
-            'latitude', 'longitude', 'altitude',
-            'capture_id',
-            'dls-yaw', 'dls-pitch', 'dls-roll', 'file_paths'
+            "timestamp",
+            "latitude",
+            "longitude",
+            "altitude",
+            "capture_id",
+            "dls-yaw",
+            "dls-pitch",
+            "dls-roll",
+            "file_paths",
         ]
         irr = ["irr-{}".format(wve) for wve in self.captures[0].center_wavelengths()]
         columns += irr
@@ -128,9 +140,16 @@ class ImageSet(object):
             irr = cap.dls_irradiance()
             series[dat] = irr
 
-    def save_stacks(self, warp_matrices, stack_directory, thumbnail_directory=None, irradiance=None, multiprocess=True,
-                    overwrite=False, progress_callback=None):
-
+    def save_stacks(
+        self,
+        warp_matrices,
+        stack_directory,
+        thumbnail_directory=None,
+        irradiance=None,
+        multiprocess=True,
+        overwrite=False,
+        progress_callback=None,
+    ):
         if not os.path.exists(stack_directory):
             os.makedirs(stack_directory)
         if thumbnail_directory is not None and not os.path.exists(thumbnail_directory):
@@ -138,15 +157,17 @@ class ImageSet(object):
 
         save_params_list = []
         for local_capture in self.captures:
-            save_params_list.append({
-                'output_path': stack_directory,
-                'thumbnail_path': thumbnail_directory,
-                'file_list': [img.path for img in local_capture.images],
-                'warp_matrices': warp_matrices,
-                'irradiance_list': irradiance,
-                'photometric': 'MINISBLACK',
-                'overwrite_existing': overwrite,
-            })
+            save_params_list.append(
+                {
+                    "output_path": stack_directory,
+                    "thumbnail_path": thumbnail_directory,
+                    "file_list": [img.path for img in local_capture.images],
+                    "warp_matrices": warp_matrices,
+                    "irradiance_list": irradiance,
+                    "photometric": "MINISBLACK",
+                    "overwrite_existing": overwrite,
+                }
+            )
 
         if multiprocess:
             pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())

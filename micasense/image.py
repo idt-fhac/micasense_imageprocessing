@@ -49,15 +49,9 @@ def rotations_degrees_to_rotation_matrix(rotation_degrees):
     sy = np.sin(np.deg2rad(rotation_degrees[1]))
     sz = np.sin(np.deg2rad(rotation_degrees[2]))
 
-    Rx = np.asmatrix([1, 0, 0,
-                      0, cx, -sx,
-                      0, sx, cx]).reshape(3, 3)
-    Ry = np.asmatrix([cy, 0, sy,
-                      0, 1, 0,
-                      -sy, 0, cy]).reshape(3, 3)
-    Rz = np.asmatrix([cz, -sz, 0,
-                      sz, cz, 0,
-                      0, 0, 1]).reshape(3, 3)
+    Rx = np.asmatrix([1, 0, 0, 0, cx, -sx, 0, sx, cx]).reshape(3, 3)
+    Ry = np.asmatrix([cy, 0, sy, 0, 1, 0, -sy, 0, cy]).reshape(3, 3)
+    Rz = np.asmatrix([cz, -sz, 0, sz, cz, 0, 0, 0, 1]).reshape(3, 3)
     R = Rx * Ry * Rz
     return R
 
@@ -75,12 +69,18 @@ class Image(object):
         self.meta = metadata.Metadata(self.path, exiftool_obj=exiftool_obj)
 
         if self.meta.band_name() is None:
-            raise ValueError("Provided file path does not have a band name: {}".format(image_path))
+            raise ValueError(
+                "Provided file path does not have a band name: {}".format(image_path)
+            )
         if not allow_uncalibrated:
-            if self.meta.band_name().upper() != 'LWIR' and not self.meta.supports_radiometric_calibration():
+            if (
+                self.meta.band_name().upper() != "LWIR"
+                and not self.meta.supports_radiometric_calibration()
+            ):
                 raise ValueError(
-                    'Library requires images taken with RedEdge-(3/M/MX) camera firmware v2.1.0 or later. ' +
-                    'Upgrade your camera firmware to at least version 2.1.0 to use this library with RedEdge-(3/M/MX) cameras.')
+                    "Library requires images taken with RedEdge-(3/M/MX) camera firmware v2.1.0 or later. "
+                    + "Upgrade your camera firmware to at least version 2.1.0 to use this library with RedEdge-(3/M/MX) cameras."
+                )
         self.allow_uncalibrated = allow_uncalibrated
         self.utc_time = self.meta.utc_time()
         self.latitude, self.longitude, self.altitude = self.meta.position()
@@ -109,7 +109,9 @@ class Image(object):
 
         self.distortion_parameters = self.meta.distortion_parameters()
         self.principal_point = self.meta.principal_point()
-        self.focal_plane_resolution_px_per_mm = self.meta.focal_plane_resolution_px_per_mm()
+        self.focal_plane_resolution_px_per_mm = (
+            self.meta.focal_plane_resolution_px_per_mm()
+        )
         self.focal_length = self.meta.focal_length_mm()
         self.focal_length_35 = self.meta.focal_length_35_mm_eq()
         self.center_wavelength = self.meta.center_wavelength()
@@ -125,28 +127,39 @@ class Image(object):
 
         if self.dls_present:
             self.dls_orientation_vector = np.array([0, 0, -1])
-            self.sun_vector_ned, \
-                self.sensor_vector_ned, \
-                self.sun_sensor_angle, \
-                self.solar_elevation, \
-                self.solar_azimuth = dls.compute_sun_angle(self.location,
-                                                           self.meta.dls_pose(),
-                                                           self.utc_time,
-                                                           self.dls_orientation_vector)
+            (
+                self.sun_vector_ned,
+                self.sensor_vector_ned,
+                self.sun_sensor_angle,
+                self.solar_elevation,
+                self.solar_azimuth,
+            ) = dls.compute_sun_angle(
+                self.location,
+                self.meta.dls_pose(),
+                self.utc_time,
+                self.dls_orientation_vector,
+            )
             self.angular_correction = dls.fresnel(self.sun_sensor_angle)
 
             # when we have good horizontal irradiance the camera provides the solar az and el also
-            if self.meta.scattered_irradiance() != 0 and self.meta.direct_irradiance() != 0:
+            if (
+                self.meta.scattered_irradiance() != 0
+                and self.meta.direct_irradiance() != 0
+            ):
                 self.solar_azimuth = self.meta.solar_azimuth()
                 self.solar_elevation = self.meta.solar_elevation()
                 self.scattered_irradiance = self.meta.scattered_irradiance()
                 self.direct_irradiance = self.meta.direct_irradiance()
-                self.direct_to_diffuse_ratio = self.meta.direct_irradiance() / self.meta.scattered_irradiance()
+                self.direct_to_diffuse_ratio = (
+                    self.meta.direct_irradiance() / self.meta.scattered_irradiance()
+                )
                 self.estimated_direct_vector = self.meta.estimated_direct_vector()
                 if self.meta.horizontal_irradiance_valid():
                     self.horizontal_irradiance = self.meta.horizontal_irradiance()
                 else:
-                    self.horizontal_irradiance = self.compute_horizontal_irradiance_dls2()
+                    self.horizontal_irradiance = (
+                        self.compute_horizontal_irradiance_dls2()
+                    )
             else:
                 self.direct_to_diffuse_ratio = 6.0  # assumption
                 self.horizontal_irradiance = self.compute_horizontal_irradiance_dls1()
@@ -154,14 +167,15 @@ class Image(object):
             self.spectral_irradiance = self.meta.spectral_irradiance()
         else:  # no dls present or LWIR band: compute what we can, set the rest to 0
             self.dls_orientation_vector = np.array([0, 0, -1])
-            self.sun_vector_ned, \
-                self.sensor_vector_ned, \
-                self.sun_sensor_angle, \
-                self.solar_elevation, \
-                self.solar_azimuth = dls.compute_sun_angle(self.location,
-                                                           (0, 0, 0),
-                                                           self.utc_time,
-                                                           self.dls_orientation_vector)
+            (
+                self.sun_vector_ned,
+                self.sensor_vector_ned,
+                self.sun_sensor_angle,
+                self.solar_elevation,
+                self.solar_azimuth,
+            ) = dls.compute_sun_angle(
+                self.location, (0, 0, 0), self.utc_time, self.dls_orientation_vector
+            )
             self.angular_correction = dls.fresnel(self.sun_sensor_angle)
             self.horizontal_irradiance = 0
             self.scattered_irradiance = 0
@@ -170,38 +184,44 @@ class Image(object):
 
         # Internal image containers; these can use a lot of memory, clear with Image.clear_images
         self.__raw_image = None  # pure raw pixels
-        self.__intensity_image = None  # black level and gain-exposure/radiometric compensated
+        self.__intensity_image = (
+            None  # black level and gain-exposure/radiometric compensated
+        )
         self.__radiance_image = None  # calibrated to radiance
         self.__reflectance_image = None  # calibrated to reflectance (0-1)
         self.__reflectance_irradiance = None
         self.__undistorted_source = None  # can be any of raw, intensity, radiance
-        self.__undistorted_image = None  # current undistorted image, depdining on source
+        self.__undistorted_image = (
+            None  # current undistorted image, depdining on source
+        )
 
     # solar elevation is defined as the angle between the horizon and the sun, so it is 0 when the
     # sun is at the horizon and pi/2 when the sun is directly overhead
     def horizontal_irradiance_from_direct_scattered(self):
-        return self.direct_irradiance * np.sin(self.solar_elevation) + self.scattered_irradiance
+        return (
+            self.direct_irradiance * np.sin(self.solar_elevation)
+            + self.scattered_irradiance
+        )
 
     def compute_horizontal_irradiance_dls1(self):
         percent_diffuse = 1.0 / self.direct_to_diffuse_ratio
         # percent_diffuse = 5e4/(img.center_wavelength**2)
         sensor_irradiance = self.spectral_irradiance / self.angular_correction
         # find direct irradiance in the plane normal to the sun
-        untilted_direct_irr = sensor_irradiance / (percent_diffuse + np.cos(self.sun_sensor_angle))
+        untilted_direct_irr = sensor_irradiance / (
+            percent_diffuse + np.cos(self.sun_sensor_angle)
+        )
         self.direct_irradiance = untilted_direct_irr
         self.scattered_irradiance = untilted_direct_irr * percent_diffuse
         # compute irradiance on the ground using the solar altitude angle
         return self.horizontal_irradiance_from_direct_scattered()
 
     def compute_horizontal_irradiance_dls2(self):
-        """ Compute the proper solar elevation, solar azimuth, and horizontal irradiance
-            for cases where the camera system did not do it correctly """
-        _, _, _, \
-            self.solar_elevation, \
-            self.solar_azimuth = dls.compute_sun_angle(self.location,
-                                                       (0, 0, 0),
-                                                       self.utc_time,
-                                                       np.array([0, 0, -1]))
+        """Compute the proper solar elevation, solar azimuth, and horizontal irradiance
+        for cases where the camera system did not do it correctly"""
+        _, _, _, self.solar_elevation, self.solar_azimuth = dls.compute_sun_angle(
+            self.location, (0, 0, 0), self.utc_time, np.array([0, 0, -1])
+        )
         return self.horizontal_irradiance_from_direct_scattered()
 
     def __lt__(self, other):
@@ -211,18 +231,21 @@ class Image(object):
         return self.band_index > other.band_index
 
     def __eq__(self, other):
-        return (self.band_index == other.band_index) and \
-            (self.capture_id == other.capture_id)
+        return (self.band_index == other.band_index) and (
+            self.capture_id == other.capture_id
+        )
 
     def __ne__(self, other):
-        return (self.band_index != other.band_index) or \
-            (self.capture_id != other.capture_id)
+        return (self.band_index != other.band_index) or (
+            self.capture_id != other.capture_id
+        )
 
     def raw(self):
-        """ Lazy load the raw image once necessary """
+        """Lazy load the raw image once necessary"""
         if self.__raw_image is None:
             try:
                 import rawpy
+
                 # to support 12-bit DNG files, otherwise we get "SIFT found no features" error
                 if self.bits_per_pixel == 12:
                     self.__raw_image = rawpy.imread(self.path).raw_image * 16
@@ -236,27 +259,29 @@ class Image(object):
         return self.__raw_image
 
     def set_raw(self, img):
-        """ set raw image from input img"""
+        """set raw image from input img"""
         self.__raw_image = img.astype(np.uint16)
 
     def set_undistorted(self, img):
-        """ set undistorted image from input img"""
+        """set undistorted image from input img"""
         self.__undistorted_image = img.astype(np.uint16)
 
     def set_external_rig_relatives(self, external_rig_relatives):
-        self.rig_translations = external_rig_relatives['rig_translations']
+        self.rig_translations = external_rig_relatives["rig_translations"]
         # external rig relatives are in rad
-        self.rig_relatives = [np.rad2deg(a) for a in external_rig_relatives['rig_relatives']]
-        px, py = external_rig_relatives['cx'], external_rig_relatives['cy']
-        fx, fy = external_rig_relatives['fx'], external_rig_relatives['fy']
+        self.rig_relatives = [
+            np.rad2deg(a) for a in external_rig_relatives["rig_relatives"]
+        ]
+        px, py = external_rig_relatives["cx"], external_rig_relatives["cy"]
+        fx, fy = external_rig_relatives["fx"], external_rig_relatives["fy"]
         rx = self.focal_plane_resolution_px_per_mm[0]
         ry = self.focal_plane_resolution_px_per_mm[1]
         self.principal_point = [px / rx, py / ry]
-        self.focal_length = (fx + fy) * .5 / rx
+        self.focal_length = (fx + fy) * 0.5 / rx
         # to do - set the distortion etc.
 
     def clear_image_data(self):
-        """ clear all computed images to reduce memory overhead """
+        """clear all computed images to reduce memory overhead"""
         self.__raw_image = None
         self.__intensity_image = None
         self.__radiance_image = None
@@ -270,17 +295,21 @@ class Image(object):
         return width, height
 
     def reflectance(self, irradiance=None, force_recompute=False):
-        """ Lazy-compute and return a reflectance image provided an irradiance reference """
-        if self.__reflectance_image is not None \
-                and not force_recompute \
-                and (self.__reflectance_irradiance == irradiance or irradiance is None):
+        """Lazy-compute and return a reflectance image provided an irradiance reference"""
+        if (
+            self.__reflectance_image is not None
+            and not force_recompute
+            and (self.__reflectance_irradiance == irradiance or irradiance is None)
+        ):
             return self.__reflectance_image
-        if irradiance is None and self.band_name != 'LWIR':
+        if irradiance is None and self.band_name != "LWIR":
             if self.horizontal_irradiance != 0.0:
                 irradiance = self.horizontal_irradiance
             else:
-                raise RuntimeError("Provide a band-specific spectral irradiance to compute reflectance")
-        if self.band_name != 'LWIR':
+                raise RuntimeError(
+                    "Provide a band-specific spectral irradiance to compute reflectance"
+                )
+        if self.band_name != "LWIR":
             self.__reflectance_irradiance = irradiance
             self.__reflectance_image = self.radiance() * math.pi / irradiance
         else:
@@ -288,9 +317,9 @@ class Image(object):
         return self.__reflectance_image
 
     def intensity(self, force_recompute=False):
-        """ Lazy=computes and returns the intensity image after black level,
-            vignette, and row correction applied.
-            Intensity is in units of DN*Seconds without a radiance correction """
+        """Lazy=computes and returns the intensity image after black level,
+        vignette, and row correction applied.
+        Intensity is in units of DN*Seconds without a radiance correction"""
         if self.__intensity_image is not None and not force_recompute:
             return self.__intensity_image
 
@@ -298,38 +327,50 @@ class Image(object):
         image_raw = np.copy(self.raw()).T
 
         #  get radiometric calibration factors
-        _, a2, a3 = self.radiometric_cal[0], self.radiometric_cal[1], self.radiometric_cal[2]
+        _, a2, a3 = (
+            self.radiometric_cal[0],
+            self.radiometric_cal[1],
+            self.radiometric_cal[2],
+        )
 
         # apply image correction methods to raw image
         V, x, y = self.vignette()
         R = 1.0 / (1.0 + a2 * y / self.exposure_time - a3 * y)
         L = V * R * (image_raw - self.black_level)
         L[L < 0] = 0
-        max_raw_dn = float(2 ** self.bits_per_pixel)
-        intensity_image = L.astype(float) / (self.gain * self.exposure_time * max_raw_dn)
+        max_raw_dn = float(2**self.bits_per_pixel)
+        intensity_image = L.astype(float) / (
+            self.gain * self.exposure_time * max_raw_dn
+        )
 
         self.__intensity_image = intensity_image.T
         return self.__intensity_image
 
     def radiance(self, force_recompute=False):
-        """ Lazy=computes and returns the radiance image after all radiometric
-        corrections have been applied """
+        """Lazy=computes and returns the radiance image after all radiometric
+        corrections have been applied"""
         if self.__radiance_image is not None and not force_recompute:
             return self.__radiance_image
 
         # get image dimensions
         image_raw = np.copy(self.raw()).T
 
-        if self.band_name != 'LWIR':
+        if self.band_name != "LWIR":
             #  get radiometric calibration factors
-            a1, a2, a3 = self.radiometric_cal[0], self.radiometric_cal[1], self.radiometric_cal[2]
+            a1, a2, a3 = (
+                self.radiometric_cal[0],
+                self.radiometric_cal[1],
+                self.radiometric_cal[2],
+            )
             # apply image correction methods to raw image
             V, x, y = self.vignette()
             R = 1.0 / (1.0 + a2 * y / self.exposure_time - a3 * y)
             L = V * R * (image_raw - self.black_level)
             L[L < 0] = 0
-            max_raw_dn = float(2 ** self.bits_per_pixel)
-            radiance_image = L.astype(float) / (self.gain * self.exposure_time) * a1 / max_raw_dn
+            max_raw_dn = float(2**self.bits_per_pixel)
+            radiance_image = (
+                L.astype(float) / (self.gain * self.exposure_time) * a1 / max_raw_dn
+            )
         else:
             L = image_raw - (273.15 * 100.0)  # convert to C from K
             radiance_image = L.astype(float) * 0.01
@@ -337,7 +378,7 @@ class Image(object):
         return self.__radiance_image
 
     def vignette(self):
-        """ Get a numpy array which defines the value to multiply each pixel by to correct
+        """Get a numpy array which defines the value to multiply each pixel by to correct
         for optical vignetting effects.
         Note: this array is transposed from normal image orientation and comes as part
         of a three-tuple, the other parts of which are also used by the radiance method.
@@ -350,7 +391,6 @@ class Image(object):
         y = y.T
         # if we have a radial poly
         if len(self.vignette_center) > 0:
-
             # get vignette center
 
             vignette_center_x, vignette_center_y = self.vignette_center
@@ -360,7 +400,7 @@ class Image(object):
 
             # reverse list and append 1., so that we can call with numpy polyval
             v_poly_list.reverse()
-            v_poly_list.append(1.)
+            v_poly_list.append(1.0)
             v_polynomial = np.array(v_poly_list)
 
             # perform vignette correction
@@ -370,7 +410,7 @@ class Image(object):
 
             # compute the vignette polynomial for each distance - we divide by the polynomial so that the
             # corrected image is image_corrected = image_original * vignetteCorrection
-            vignette = 1. / np.polyval(v_polynomial, r)
+            vignette = 1.0 / np.polyval(v_polynomial, r)
         elif len(self.vignette_polynomial2D) > 0:
             xv = x.T / x_dim
             yv = y.T / y_dim
@@ -380,8 +420,8 @@ class Image(object):
             for i, c in enumerate(k):
                 ex = e[2 * i]
                 ey = e[2 * i + 1]
-                p2 += c * xv ** ex * yv ** ey
-            vignette = (1. / p2).T
+                p2 += c * xv**ex * yv**ey
+            vignette = (1.0 / p2).T
         return vignette, x, y
 
     def undistorted_radiance(self, force_recompute=False):
@@ -427,63 +467,84 @@ class Image(object):
         return t_x, t_y
 
     def undistorted(self, image):
-        """ return the undistorted image from input image """
+        """return the undistorted image from input image"""
         # If we have already undistorted the same source, just return that here
         # otherwise, lazy compute the undstorted image
-        if self.__undistorted_source is not None and image.data == self.__undistorted_source.data:
+        if (
+            self.__undistorted_source is not None
+            and image.data == self.__undistorted_source.data
+        ):
             return self.__undistorted_image
 
         self.__undistorted_source = image
 
-        new_cam_mat, _ = cv2.getOptimalNewCameraMatrix(self.cv2_camera_matrix(),
-                                                       self.cv2_distortion_coeff(),
-                                                       self.size(),
-                                                       1)
-        map1, map2 = cv2.initUndistortRectifyMap(self.cv2_camera_matrix(),
-                                                 self.cv2_distortion_coeff(),
-                                                 np.eye(3),
-                                                 new_cam_mat,
-                                                 self.size(),
-                                                 cv2.CV_32F)  # cv2.CV_32F for 32 bit floats
+        new_cam_mat, _ = cv2.getOptimalNewCameraMatrix(
+            self.cv2_camera_matrix(), self.cv2_distortion_coeff(), self.size(), 1
+        )
+        map1, map2 = cv2.initUndistortRectifyMap(
+            self.cv2_camera_matrix(),
+            self.cv2_distortion_coeff(),
+            np.eye(3),
+            new_cam_mat,
+            self.size(),
+            cv2.CV_32F,
+        )  # cv2.CV_32F for 32 bit floats
         # compute the undistorted 16 bit image
         self.__undistorted_image = cv2.remap(image, map1, map2, cv2.INTER_LINEAR)
         return self.__undistorted_image
 
     def plot_raw(self, title=None, figsize=None):
-        """ Create a single plot of the raw image """
+        """Create a single plot of the raw image"""
         if title is None:
-            title = '{} Band {} Raw DN'.format(self.band_name, self.band_index)
+            title = "{} Band {} Raw DN".format(self.band_name, self.band_index)
         return plotutils.plotwithcolorbar(self.raw(), title=title, figsize=figsize)
 
     def plot_intensity(self, title=None, figsize=None):
-        """ Create a single plot of the image converted to uncalibrated intensity """
+        """Create a single plot of the image converted to uncalibrated intensity"""
         if title is None:
-            title = '{} Band {} Intensity (DN*sec)'.format(self.band_name, self.band_index)
-        return plotutils.plotwithcolorbar(self.intensity(), title=title, figsize=figsize)
+            title = "{} Band {} Intensity (DN*sec)".format(
+                self.band_name, self.band_index
+            )
+        return plotutils.plotwithcolorbar(
+            self.intensity(), title=title, figsize=figsize
+        )
 
     def plot_radiance(self, title=None, figsize=None):
-        """ Create a single plot of the image converted to radiance """
+        """Create a single plot of the image converted to radiance"""
         if title is None:
-            title = '{} Band {} Radiance'.format(self.band_name, self.band_index)
+            title = "{} Band {} Radiance".format(self.band_name, self.band_index)
         return plotutils.plotwithcolorbar(self.radiance(), title=title, figsize=figsize)
 
     def plot_vignette(self, title=None, figsize=None):
-        """ Create a single plot of the vignette """
+        """Create a single plot of the vignette"""
         if title is None:
-            title = '{} Band {} Vignette'.format(self.band_name, self.band_index)
-        return plotutils.plotwithcolorbar(self.plottable_vignette(), title=title, figsize=figsize)
+            title = "{} Band {} Vignette".format(self.band_name, self.band_index)
+        return plotutils.plotwithcolorbar(
+            self.plottable_vignette(), title=title, figsize=figsize
+        )
 
     def plot_undistorted_radiance(self, title=None, figsize=None):
-        """ Create a single plot of the undistorted radiance """
+        """Create a single plot of the undistorted radiance"""
         if title is None:
-            title = '{} Band {} Undistorted Radiance'.format(self.band_name, self.band_index)
-        return plotutils.plotwithcolorbar(self.undistorted(self.radiance()), title=title, figsize=figsize)
+            title = "{} Band {} Undistorted Radiance".format(
+                self.band_name, self.band_index
+            )
+        return plotutils.plotwithcolorbar(
+            self.undistorted(self.radiance()), title=title, figsize=figsize
+        )
 
     def plot_all(self, figsize=(13, 10)):
-        plots = [self.raw(), self.plottable_vignette(), self.radiance(), self.undistorted(self.radiance())]
-        plot_types = ['Raw', 'Vignette', 'Radiance', 'Undistorted Radiance']
-        titles = ['{} Band {} {}'.format(str(self.band_name), str(self.band_index), tpe)
-                  for tpe in plot_types]
+        plots = [
+            self.raw(),
+            self.plottable_vignette(),
+            self.radiance(),
+            self.undistorted(self.radiance()),
+        ]
+        plot_types = ["Raw", "Vignette", "Radiance", "Undistorted Radiance"]
+        titles = [
+            "{} Band {} {}".format(str(self.band_name), str(self.band_index), tpe)
+            for tpe in plot_types
+        ]
         plotutils.subplotwithcolorbar(2, 2, plots, titles, figsize=figsize)
 
         # get the homography that maps from this image to the reference image
@@ -502,19 +563,19 @@ class Image(object):
         A = np.zeros((4, 4))
         A[0:3, 0:3] = np.dot(R_ref.T, R)
         A[0:3, 3] = T
-        A[3, 3] = 1.
-        C, _ = cv2.getOptimalNewCameraMatrix(self.cv2_camera_matrix(),
-                                             self.cv2_distortion_coeff(),
-                                             self.size(), 1)
-        Cr, _ = cv2.getOptimalNewCameraMatrix(ref.cv2_camera_matrix(),
-                                              ref.cv2_distortion_coeff(),
-                                              ref.size(), 1)
+        A[3, 3] = 1.0
+        C, _ = cv2.getOptimalNewCameraMatrix(
+            self.cv2_camera_matrix(), self.cv2_distortion_coeff(), self.size(), 1
+        )
+        Cr, _ = cv2.getOptimalNewCameraMatrix(
+            ref.cv2_camera_matrix(), ref.cv2_distortion_coeff(), ref.size(), 1
+        )
         CC = np.zeros((4, 4))
         CC[0:3, 0:3] = C
-        CC[3, 3] = 1.
+        CC[3, 3] = 1.0
         CCr = np.zeros((4, 4))
         CCr[0:3, 0:3] = Cr
-        CCr[3, 3] = 1.
+        CCr[3, 3] = 1.0
 
         B = np.array(np.dot(CCr, np.dot(A, np.linalg.inv(CC))))
         B[:, 2] = B[:, 2] - B[:, 3]

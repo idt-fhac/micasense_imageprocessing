@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 
 
 class Panel(object):
-
     def __init__(self, img, panel_corners=None, ignore_autocalibration=False):
         # if we have panel images with QR metadata, panel detection is not called,
         # so this can be forced here
@@ -46,9 +45,14 @@ class Panel(object):
 
         self.image = img
         bias = img.radiance().min()
-        scale = (img.radiance().max() - bias)
-        self.gray8b = np.zeros(img.radiance().shape, dtype='uint8')
-        cv2.convertScaleAbs(img.undistorted(img.radiance()), self.gray8b, 256.0 / scale, -1.0 * scale * bias)
+        scale = img.radiance().max() - bias
+        self.gray8b = np.zeros(img.radiance().shape, dtype="uint8")
+        cv2.convertScaleAbs(
+            img.undistorted(img.radiance()),
+            self.gray8b,
+            256.0 / scale,
+            -1.0 * scale * bias,
+        )
 
         if self.image.auto_calibration_image and not ignore_autocalibration:
             self.__panel_type = "auto"  # panels the camera found we call auto
@@ -64,7 +68,7 @@ class Panel(object):
             self.saturated_panel_pixels_pct = None
             self.panel_pixels_mean = None
             self.panel_version = None
-            if re.search(r'RP\d{2}-(\d{7})-\D{2}', self.image.panel_serial):
+            if re.search(r"RP\d{2}-(\d{7})-\D{2}", self.image.panel_serial):
                 self.serial = self.image.panel_serial
                 self.panel_version = int(self.image.panel_serial[2:4])
         else:
@@ -82,13 +86,13 @@ class Panel(object):
                 self.__panel_bounds = None
 
     def __expect_panel(self):
-        return self.image.band_name.upper() != 'LWIR'
+        return self.image.band_name.upper() != "LWIR"
 
     def __find_qr(self):
         decoded = pyzbar.decode(self.gray8b, symbols=[pyzbar.ZBarSymbol.QRCODE])
         for symbol in decoded:
-            serial_str = symbol.data.decode('UTF-8')
-            m = re.search(r'RP\d{2}-(\d{7})-\D{2}', serial_str)
+            serial_str = symbol.data.decode("UTF-8")
+            m = re.search(r"RP\d{2}-(\d{7})-\D{2}", serial_str)
             if m:
                 self.serial = serial_str
                 self.panel_version = int(self.serial[2:4])
@@ -108,7 +112,7 @@ class Panel(object):
         return True
 
     def reflectance_from_panel_serial(self):
-        if self.__panel_type == 'auto':
+        if self.__panel_type == "auto":
             return self.panel_albedo
 
         if self.serial is None:
@@ -130,7 +134,7 @@ class Panel(object):
         logger.info(self.__panel_type)
 
     def qr_corners(self):
-        if self.__panel_type == 'auto':
+        if self.__panel_type == "auto":
             return None
 
         if self.qr_bounds is None:
@@ -141,7 +145,7 @@ class Panel(object):
         if not self.__expect_panel():
             return False
 
-        if self.__panel_type == 'auto':
+        if self.__panel_type == "auto":
             return True
 
         if self.serial is None:
@@ -149,14 +153,14 @@ class Panel(object):
         return self.qr_bounds is not None
 
     def panel_corners(self):
-        """ get the corners of a panel region based on the qr code location
-            Our algorithm to do this uses a 'reference' qr code location, and
-            it's associate panel region.  We find the affine transform
-            between the reference qr and our qr, and apply that same transform to the
-            reference panel region to find our panel region. Because of a limitation
-            of the pyzbar library, the rotation of the absolute QR code isn't known,
-            so we then try all 4 rotations and test against a cost function which is the
-            minimum of the standard deviation divided by the mean value for the panel region"""
+        """get the corners of a panel region based on the qr code location
+        Our algorithm to do this uses a 'reference' qr code location, and
+        it's associate panel region.  We find the affine transform
+        between the reference qr and our qr, and apply that same transform to the
+        reference panel region to find our panel region. Because of a limitation
+        of the pyzbar library, the rotation of the absolute QR code isn't known,
+        so we then try all 4 rotations and test against a cost function which is the
+        minimum of the standard deviation divided by the mean value for the panel region"""
         if self.__panel_bounds is not None:
             return self.__panel_bounds
         if self.serial is None:
@@ -186,7 +190,9 @@ class Panel(object):
             s = 50
             T = np.array([0, -130.84])
 
-        reference_panel_pts = np.asarray([[-s, s], [s, s], [s, -s], [-s, -s]], dtype=float) * .5 + T
+        reference_panel_pts = (
+            np.asarray([[-s, s], [s, s], [s, -s], [-s, -s]], dtype=float) * 0.5 + T
+        )
         reference_qr_pts = np.asarray([[-p, p], [p, p], [p, -p], [-p, -p]], dtype=float)
         bounds = []
         costs = []
@@ -199,8 +205,10 @@ class Panel(object):
             # we determine the homography from the 4 corner points
             warp_matrix = cv2.getPerspectiveTransform(src, dst)
 
-            pts = np.asarray([reference_panel_pts], 'float32')
-            panel_bounds = cv2.convexHull(cv2.perspectiveTransform(pts, warp_matrix), clockwise=False)
+            pts = np.asarray([reference_panel_pts], "float32")
+            panel_bounds = cv2.convexHull(
+                cv2.perspectiveTransform(pts, warp_matrix), clockwise=False
+            )
             panel_bounds = np.squeeze(panel_bounds)  # remove nested lists
 
             bounds_in_image = True
@@ -208,7 +216,9 @@ class Panel(object):
                 if not self.__pt_in_image_bounds(point):
                     bounds_in_image = False
             if bounds_in_image:
-                mean, std, _, _ = self.region_stats(self.image.raw(), panel_bounds, sat_threshold=65000)
+                mean, std, _, _ = self.region_stats(
+                    self.image.raw(), panel_bounds, sat_threshold=65000
+                )
                 bounds.append(panel_bounds.astype(np.int32))
                 costs.append(std / mean)
 
@@ -233,7 +243,12 @@ class Panel(object):
         left_coords = sorted(left_coords, key=lambda y: y[0])
         right_coords = sorted(right_coords, key=lambda y: y[0])
 
-        return [tuple(right_coords[1]), tuple(left_coords[1]), tuple(left_coords[0]), tuple(right_coords[0])]
+        return [
+            tuple(right_coords[1]),
+            tuple(left_coords[1]),
+            tuple(left_coords[0]),
+            tuple(right_coords[0]),
+        ]
 
     def region_stats(self, img, region, sat_threshold=None):
         """Provide regional statistics for an image over a region
@@ -256,29 +271,26 @@ class Panel(object):
 
     def raw(self):
         raw_img = self.image.undistorted(self.image.raw())
-        return self.region_stats(raw_img,
-                                 self.panel_corners(),
-                                 sat_threshold=65000)
+        return self.region_stats(raw_img, self.panel_corners(), sat_threshold=65000)
 
     def intensity(self):
         intensity_img = self.image.undistorted(self.image.intensity())
-        return self.region_stats(intensity_img,
-                                 self.panel_corners(),
-                                 sat_threshold=65000)
+        return self.region_stats(
+            intensity_img, self.panel_corners(), sat_threshold=65000
+        )
 
     def radiance(self):
         radiance_img = self.image.undistorted(self.image.radiance())
-        return self.region_stats(radiance_img,
-                                 self.panel_corners())
+        return self.region_stats(radiance_img, self.panel_corners())
 
     def reflectance_mean(self):
         reflectance_image = self.image.reflectance()
         if reflectance_image is None:
             logger.info(
                 "First calculate the reflectance image by providing a\n band specific irradiance to the calling "
-                "image.reflectance(irradiance)")
-        mean, _, _, _ = self.region_stats(reflectance_image,
-                                          self.panel_corners())
+                "image.reflectance(irradiance)"
+            )
+        mean, _, _, _ = self.region_stats(reflectance_image, self.panel_corners())
         return mean
 
     def irradiance_mean(self, reflectance):
@@ -300,7 +312,15 @@ class Panel(object):
             else:
                 xloc = self.panel_corners()[0][0] - 100
                 yloc = self.panel_corners()[0][1] + 100
-            cv2.putText(display_img, str(self.serial).split('_')[0], (xloc, yloc), font, 1, 255, 2)
+            cv2.putText(
+                display_img,
+                str(self.serial).split("_")[0],
+                (xloc, yloc),
+                font,
+                1,
+                255,
+                2,
+            )
         return display_img
 
     def plot(self, figsize=(14, 14)):

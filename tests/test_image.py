@@ -33,8 +33,8 @@ import micasense.panel as panel
 def test_load_image_metadata(img):
     assert img.meta is not None
     assert img.meta.band_index() == 0
-    assert img.meta.camera_make() == 'MicaSense'
-    assert img.meta.camera_model() == 'RedEdge-M'
+    assert img.meta.camera_make() == "MicaSense"
+    assert img.meta.camera_model() == "RedEdge-M"
 
 
 def test_less_than(img, img2):
@@ -74,8 +74,7 @@ def test_reflectance(img):
     panel_reflectance = 0.50
     panel_irradiance = pan.irradiance_mean(panel_reflectance)
     reflectance_img = img.reflectance(panel_irradiance)
-    ref_mean, _, _, _ = pan.region_stats(reflectance_img,
-                                         pan.panel_corners())
+    ref_mean, _, _, _ = pan.region_stats(reflectance_img, pan.panel_corners())
     assert ref_mean == pytest.approx(panel_reflectance, 1e-2)
 
 
@@ -88,9 +87,7 @@ def test_pp_px(img):
 
 
 def test_cv2_camera_matrix(img):
-    test_mat = [[1441.60555, 0, 657.402667],
-                [0, 1441.60555, 478.056001],
-                [0, 0, 1]]
+    test_mat = [[1441.60555, 0, 657.402667], [0, 1441.60555, 478.056001], [0, 0, 1]]
     for idx, row in enumerate(img.cv2_camera_matrix()):
         assert row == pytest.approx(test_mat[idx], abs=0.1)
 
@@ -99,13 +96,13 @@ def test_altum_panel_image(panel_altum_image):
     assert panel_altum_image.size() == (2064, 1544)
     assert panel_altum_image.meta.camera_make() == "MicaSense"
     assert panel_altum_image.meta.camera_model() == "Altum"
-    assert panel_altum_image.auto_calibration_image == True
+    assert panel_altum_image.auto_calibration_image
 
 
 def test_altum_flight_image(altum_flight_image):
     assert altum_flight_image.meta.camera_make() == "MicaSense"
     assert altum_flight_image.meta.camera_model() == "Altum"
-    assert altum_flight_image.auto_calibration_image == False
+    assert not altum_flight_image.auto_calibration_image
 
 
 def test_image_not_file(non_existant_file_name):
@@ -114,9 +111,9 @@ def test_image_not_file(non_existant_file_name):
 
 
 def test_altum_lwir_image(altum_lwir_image):
-    assert altum_lwir_image.meta.band_name() == 'LWIR'
+    assert altum_lwir_image.meta.band_name() == "LWIR"
     assert altum_lwir_image.size() == (160, 120)
-    assert altum_lwir_image.auto_calibration_image == False
+    assert not altum_lwir_image.auto_calibration_image
 
 
 def test_altum_image_horizontal_irradiance(altum_flight_image):
@@ -125,4 +122,6 @@ def test_altum_image_horizontal_irradiance(altum_flight_image):
     direct_irr = altum_flight_image.direct_irradiance
     scattered_irr = altum_flight_image.scattered_irradiance
     good_horiz_irradiance = direct_irr * np.sin(solar_el) + scattered_irr
-    assert altum_flight_image.horizontal_irradiance == pytest.approx(good_horiz_irradiance, 1e-3)
+    assert altum_flight_image.horizontal_irradiance == pytest.approx(
+        good_horiz_irradiance, 1e-3
+    )

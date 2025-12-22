@@ -34,7 +34,7 @@ import micasense.imageset as imageset
 
 @pytest.fixture()
 def files_dir():
-    return Path(__file__).parent.parent / 'data' / 'REDEDGE-MX'
+    return Path(__file__).parent.parent / "data" / "REDEDGE-MX"
 
 
 progress_val = 0.0
@@ -46,8 +46,8 @@ def progress(p):
 
 
 def test_from_captures(files_dir):
-    file1 = os.path.join(files_dir, 'IMG_0001_1.tif')
-    file2 = os.path.join(files_dir, 'IMG_0020_1.tif')
+    file1 = os.path.join(files_dir, "IMG_0001_1.tif")
+    file2 = os.path.join(files_dir, "IMG_0020_1.tif")
     cap1 = capture.Capture.from_file(file1)
     cap2 = capture.Capture.from_file(file2)
     imgset = imageset.ImageSet([cap1, cap2])
@@ -68,7 +68,7 @@ def test_as_nested_lists(files_dir):
     assert imgset is not None
     data, columns = imgset.as_nested_lists()
     assert data[0][1] == 47.7036143
-    assert columns[0] == 'timestamp'
+    assert columns[0] == "timestamp"
 
 
 def test_10_band_from_dir(ten_band_files_dir):

@@ -123,14 +123,23 @@ def normalize(im, local_min=None, local_max=None):
     if local_min is not None and local_max is not None:
         norm = (im - local_min) / (local_max - local_min)
     else:
-        cv2.normalize(im, dst=norm, alpha=0.0, beta=1.0, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        cv2.normalize(
+            im,
+            dst=norm,
+            alpha=0.0,
+            beta=1.0,
+            norm_type=cv2.NORM_MINMAX,
+            dtype=cv2.CV_32F,
+        )
     norm[norm < 0.0] = 0.0
     norm[norm > 1.0] = 1.0
     return norm
 
 
 def local_normalize(im):
-    norm = img_as_ubyte(normalize(im))  # TODO: mainly using this as a type conversion, but it's expensive
+    norm = img_as_ubyte(
+        normalize(im)
+    )  # TODO: mainly using this as a type conversion, but it's expensive
     width, _ = im.shape
     disksize = int(width / 5)
     if disksize % 2 == 0:
@@ -163,7 +172,7 @@ def translation_from_ref(capture, band, ref=4):
 
 
 def align(pair):
-    """ Determine an alignment matrix between two images
+    """Determine an alignment matrix between two images
     @input:
     Dictionary of the following form:
     {
@@ -186,56 +195,74 @@ def align(pair):
     https://stackoverflow.com/questions/45997891/cv2-motion-euclidean-for-the-warp-mode-in-ecc-image-alignment-method
 
     """
-    warp_mode = pair['warp_mode']
-    max_iterations = pair['max_iterations']
-    epsilon_threshold = pair['epsilon_threshold']
-    ref_index = pair['ref_index']
-    match_index = pair['match_index']
-    translations = pair['translations']
+    warp_mode = pair["warp_mode"]
+    max_iterations = pair["max_iterations"]
+    epsilon_threshold = pair["epsilon_threshold"]
+    ref_index = pair["ref_index"]
+    match_index = pair["match_index"]
+    translations = pair["translations"]
 
     # Initialize the matrix to identity
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
         # warp_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]], dtype=float)
-        warp_matrix = pair['warp_matrix_init']
+        warp_matrix = pair["warp_matrix_init"]
     else:
         # warp_matrix = np.array([[1,0,0],[0,1,0]], dtype=float)
-        warp_matrix = np.array([[1, 0, translations[1]], [0, 1, translations[0]]], dtype=float)
+        warp_matrix = np.array(
+            [[1, 0, translations[1]], [0, 1, translations[0]]], dtype=float
+        )
 
-    w = pair['ref_image'].shape[1]
+    w = pair["ref_image"].shape[1]
 
-    if pair['pyramid_levels'] is None:
+    if pair["pyramid_levels"] is None:
         nol = int(w / (1280 / 3)) - 1
     else:
-        nol = pair['pyramid_levels']
+        nol = pair["pyramid_levels"]
 
-    if pair['debug']:
+    if pair["debug"]:
         logger.info("number of pyramid levels: %s", nol)
 
-    warp_matrix[0][2] /= (2 ** nol)
-    warp_matrix[1][2] /= (2 ** nol)
+    warp_matrix[0][2] /= 2**nol
+    warp_matrix[1][2] /= 2**nol
 
     if ref_index != match_index:
-
-        show_debug_images = pair['debug']
+        show_debug_images = pair["debug"]
         # construct grayscale pyramid
-        gray1 = pair['ref_image']
-        gray2 = pair['match_image']
+        gray1 = pair["ref_image"]
+        gray2 = pair["match_image"]
         if gray2.shape[0] < gray1.shape[0]:
-            cv2.resize(gray2, None, fx=gray1.shape[0] / gray2.shape[0], fy=gray1.shape[0] / gray2.shape[0],
-                       interpolation=cv2.INTER_AREA)
+            cv2.resize(
+                gray2,
+                None,
+                fx=gray1.shape[0] / gray2.shape[0],
+                fy=gray1.shape[0] / gray2.shape[0],
+                interpolation=cv2.INTER_AREA,
+            )
         gray1_pyr = [gray1]
         gray2_pyr = [gray2]
 
         for level in range(nol):
             gray1_pyr[0] = gaussian(normalize(gray1_pyr[0]))
-            gray1_pyr.insert(0, cv2.resize(gray1_pyr[0], None, fx=1 / 2, fy=1 / 2,
-                                           interpolation=cv2.INTER_AREA))
+            gray1_pyr.insert(
+                0,
+                cv2.resize(
+                    gray1_pyr[0], None, fx=1 / 2, fy=1 / 2, interpolation=cv2.INTER_AREA
+                ),
+            )
             gray2_pyr[0] = gaussian(normalize(gray2_pyr[0]))
-            gray2_pyr.insert(0, cv2.resize(gray2_pyr[0], None, fx=1 / 2, fy=1 / 2,
-                                           interpolation=cv2.INTER_AREA))
+            gray2_pyr.insert(
+                0,
+                cv2.resize(
+                    gray2_pyr[0], None, fx=1 / 2, fy=1 / 2, interpolation=cv2.INTER_AREA
+                ),
+            )
 
         # Terminate the optimizer if either the max iterations or the threshold are reached
-        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, max_iterations, epsilon_threshold)
+        criteria = (
+            cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
+            max_iterations,
+            epsilon_threshold,
+        )
         # run pyramid ECC
         for level in range(nol + 1):
             grad1 = gradient(gray1_pyr[level])
@@ -243,30 +270,52 @@ def align(pair):
 
             if show_debug_images:
                 import micasense.plotutils as plotutils
-                plotutils.plotwithcolorbar(gray1_pyr[level], "ref level {}".format(level))
-                plotutils.plotwithcolorbar(gray2_pyr[level], "match level {}".format(level))
+
+                plotutils.plotwithcolorbar(
+                    gray1_pyr[level], "ref level {}".format(level)
+                )
+                plotutils.plotwithcolorbar(
+                    gray2_pyr[level], "match level {}".format(level)
+                )
                 plotutils.plotwithcolorbar(grad1, "ref grad level {}".format(level))
                 plotutils.plotwithcolorbar(grad2, "match grad level {}".format(level))
                 logger.info("Starting warp for level %s is:\n %s", level, warp_matrix)
 
             try:
-                cc, warp_matrix = cv2.findTransformECC(grad1, grad2, warp_matrix, warp_mode, criteria, inputMask=None,
-                                                       gaussFiltSize=1)
+                cc, warp_matrix = cv2.findTransformECC(
+                    grad1,
+                    grad2,
+                    warp_matrix,
+                    warp_mode,
+                    criteria,
+                    inputMask=None,
+                    gaussFiltSize=1,
+                )
             except TypeError:
-                cc, warp_matrix = cv2.findTransformECC(grad1, grad2, warp_matrix, warp_mode, criteria)
+                cc, warp_matrix = cv2.findTransformECC(
+                    grad1, grad2, warp_matrix, warp_mode, criteria
+                )
 
             if show_debug_images:
                 logger.info("Warp after alignment level %s is \n%s", level, warp_matrix)
 
-            if level != nol:  # scale up only the offset by a factor of 2 for the next (larger image) pyramid level
+            if (
+                level != nol
+            ):  # scale up only the offset by a factor of 2 for the next (larger image) pyramid level
                 if warp_mode == cv2.MOTION_HOMOGRAPHY:
-                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2], [0.5, 0.5, 1]], dtype=float)
+                    warp_matrix = warp_matrix * np.array(
+                        [[1, 1, 2], [1, 1, 2], [0.5, 0.5, 1]], dtype=float
+                    )
                 else:
-                    warp_matrix = warp_matrix * np.array([[1, 1, 2], [1, 1, 2]], dtype=float)
+                    warp_matrix = warp_matrix * np.array(
+                        [[1, 1, 2], [1, 1, 2]], dtype=float
+                    )
 
-    return {'ref_index': pair['ref_index'],
-            'match_index': pair['match_index'],
-            'warp_matrix': warp_matrix}
+    return {
+        "ref_index": pair["ref_index"],
+        "match_index": pair["match_index"],
+        "warp_matrix": warp_matrix,
+    }
 
 
 def default_warp_matrix(warp_mode):
@@ -276,8 +325,16 @@ def default_warp_matrix(warp_mode):
         return np.array([[1, 0, 0], [0, 1, 0]], dtype=float)
 
 
-def align_capture(capture, ref_index=None, warp_mode=cv2.MOTION_HOMOGRAPHY, max_iterations=2500, epsilon_threshold=1e-9,
-                  multithreaded=True, debug=False, pyramid_levels=None):
+def align_capture(
+    capture,
+    ref_index=None,
+    warp_mode=cv2.MOTION_HOMOGRAPHY,
+    max_iterations=2500,
+    epsilon_threshold=1e-9,
+    multithreaded=True,
+    debug=False,
+    pyramid_levels=None,
+):
     """Align images in a capture using openCV
     MOTION_TRANSLATION sets a translational motion model; warpMatrix is 2x3 with the first 2x2 part being the unity matrix and the rest two parameters being estimated.
     MOTION_EUCLIDEAN sets a Euclidean (rigid) transformation as motion model; three parameters are estimated; warpMatrix is 2x3.
@@ -286,12 +343,20 @@ def align_capture(capture, ref_index=None, warp_mode=cv2.MOTION_HOMOGRAPHY, max_
     best results will be AFFINE and HOMOGRAPHY, at the expense of speed
     """
     if ref_index is None:
-        if capture.camera_model == 'Altum' or capture.camera_model == 'RedEdge-M' or capture.camera_model == 'RedEdge':
+        if (
+            capture.camera_model == "Altum"
+            or capture.camera_model == "RedEdge-M"
+            or capture.camera_model == "RedEdge"
+        ):
             ref_index = 1
-        if capture.camera_model == 'RedEdge-P' or capture.camera_model == 'Altum-PT':
+        if capture.camera_model == "RedEdge-P" or capture.camera_model == "Altum-PT":
             ref_index = 5
     # Match other bands to this reference image (index into capture.images[])
-    ref_img = capture.images[ref_index].undistorted(capture.images[ref_index].radiance()).astype('float32')
+    ref_img = (
+        capture.images[ref_index]
+        .undistorted(capture.images[ref_index].radiance())
+        .astype("float32")
+    )
 
     if capture.has_rig_relatives():
         warp_matrices_init = capture.get_warp_matrices(ref_index=ref_index)
@@ -304,81 +369,100 @@ def align_capture(capture, ref_index=None, warp_mode=cv2.MOTION_HOMOGRAPHY, max_
             translations = img.rig_xy_offset_in_px()
         else:
             translations = (0, 0)
-        if img.band_name != 'LWIR':
-            alignment_pairs.append({'warp_mode': warp_mode,
-                                    'max_iterations': max_iterations,
-                                    'epsilon_threshold': epsilon_threshold,
-                                    'ref_index': ref_index,
-                                    'ref_image': ref_img,
-                                    'match_index': img.band_index,
-                                    'match_image': img.undistorted(img.radiance()).astype('float32'),
-                                    'translations': translations,
-                                    'warp_matrix_init': np.array(warp_matrices_init[i], dtype=float),
-                                    'debug': debug,
-                                    'pyramid_levels': pyramid_levels})
+        if img.band_name != "LWIR":
+            alignment_pairs.append(
+                {
+                    "warp_mode": warp_mode,
+                    "max_iterations": max_iterations,
+                    "epsilon_threshold": epsilon_threshold,
+                    "ref_index": ref_index,
+                    "ref_image": ref_img,
+                    "match_index": img.band_index,
+                    "match_image": img.undistorted(img.radiance()).astype("float32"),
+                    "translations": translations,
+                    "warp_matrix_init": np.array(warp_matrices_init[i], dtype=float),
+                    "debug": debug,
+                    "pyramid_levels": pyramid_levels,
+                }
+            )
     warp_matrices = [None] * len(alignment_pairs)
 
     # required to work across linux/mac/windows, see https://stackoverflow.com/questions/47852237
-    if multithreaded and multiprocessing.get_start_method() != 'spawn':
+    if multithreaded and multiprocessing.get_start_method() != "spawn":
         try:
-            multiprocessing.set_start_method('spawn', force=True)
+            multiprocessing.set_start_method("spawn", force=True)
         except ValueError:
             multithreaded = False
 
     if multithreaded:
         pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
         for _, mat in enumerate(pool.imap_unordered(align, alignment_pairs)):
-            warp_matrices[mat['match_index']] = mat['warp_matrix']
-            logger.info("Finished aligning band %s", mat['match_index'])
+            warp_matrices[mat["match_index"]] = mat["warp_matrix"]
+            logger.info("Finished aligning band %s", mat["match_index"])
         pool.close()
         pool.join()
     else:
         # Single-threaded alternative
         for pair in alignment_pairs:
             mat = align(pair)
-            warp_matrices[mat['match_index']] = mat['warp_matrix']
-            logger.info("Finished aligning band %s", mat['match_index'])
+            warp_matrices[mat["match_index"]] = mat["warp_matrix"]
+            logger.info("Finished aligning band %s", mat["match_index"])
 
-    if capture.images[-1].band_name == 'LWIR':
+    if capture.images[-1].band_name == "LWIR":
         img = capture.images[-1]
-        alignment_pairs.append({'warp_mode': warp_mode,
-                                'max_iterations': max_iterations,
-                                'epsilon_threshold': epsilon_threshold,
-                                'ref_index': ref_index,
-                                'ref_image': ref_img,
-                                'match_index': img.band_index,
-                                'match_image': img.undistorted(img.radiance()).astype('float32'),
-                                'translations': translations,
-                                'debug': debug})
+        alignment_pairs.append(
+            {
+                "warp_mode": warp_mode,
+                "max_iterations": max_iterations,
+                "epsilon_threshold": epsilon_threshold,
+                "ref_index": ref_index,
+                "ref_image": ref_img,
+                "match_index": img.band_index,
+                "match_image": img.undistorted(img.radiance()).astype("float32"),
+                "translations": translations,
+                "debug": debug,
+            }
+        )
         warp_matrices.append(capture.get_warp_matrices(ref_index)[-1])
     return warp_matrices, alignment_pairs
 
 
 # apply homography to create an aligned stack
-def aligned_capture(capture, warp_matrices, warp_mode, cropped_dimensions, match_index, img_type='reflectance',
-                    interpolation_mode=cv2.INTER_LANCZOS4):
+def aligned_capture(
+    capture,
+    warp_matrices,
+    warp_mode,
+    cropped_dimensions,
+    match_index,
+    img_type="reflectance",
+    interpolation_mode=cv2.INTER_LANCZOS4,
+):
     width, height = capture.images[match_index].size()
 
     im_aligned = np.zeros((height, width, len(warp_matrices)), dtype=float)
 
     for i in range(0, len(warp_matrices)):
-        if img_type == 'reflectance':
+        if img_type == "reflectance":
             img = capture.images[i].undistorted_reflectance()
         else:
             img = capture.images[i].undistorted_radiance()
 
         if warp_mode != cv2.MOTION_HOMOGRAPHY:
-            im_aligned[:, :, i] = cv2.warpAffine(img,
-                                                 warp_matrices[i],
-                                                 (width, height),
-                                                 flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
+            im_aligned[:, :, i] = cv2.warpAffine(
+                img,
+                warp_matrices[i],
+                (width, height),
+                flags=interpolation_mode + cv2.WARP_INVERSE_MAP,
+            )
         else:
-            im_aligned[:, :, i] = cv2.warpPerspective(img,
-                                                      warp_matrices[i],
-                                                      (width, height),
-                                                      flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
+            im_aligned[:, :, i] = cv2.warpPerspective(
+                img,
+                warp_matrices[i],
+                (width, height),
+                flags=interpolation_mode + cv2.WARP_INVERSE_MAP,
+            )
     (left, top, w, h) = tuple(int(i) for i in cropped_dimensions)
-    im_cropped = im_aligned[top:top + h, left:left + w][:]
+    im_cropped = im_aligned[top : top + h, left : left + w][:]
 
     return im_cropped
 
@@ -408,7 +492,9 @@ class Bounds(object):
         return self.__str__()
 
 
-def find_crop_bounds(capture, registration_transforms, warp_mode=cv2.MOTION_HOMOGRAPHY, reference_band=0):
+def find_crop_bounds(
+    capture, registration_transforms, warp_mode=cv2.MOTION_HOMOGRAPHY, reference_band=0
+):
     """Compute the crop rectangle to be applied to a set of images after
     registration such that no pixel in the resulting stack of images will
     include a blank value for any of the bands
@@ -427,10 +513,18 @@ def find_crop_bounds(capture, registration_transforms, warp_mode=cv2.MOTION_HOMO
     lens_distortions = [image.cv2_distortion_coeff() for image in capture.images]
     camera_matrices = [image.cv2_camera_matrix() for image in capture.images]
 
-    bounds = [get_inner_rect(s, a, d, c, warp_mode=warp_mode)[0] for s, a, d, c in
-              zip(image_sizes, registration_transforms, lens_distortions, camera_matrices)]
-    edges = [get_inner_rect(s, a, d, c, warp_mode=warp_mode)[1] for s, a, d, c in
-             zip(image_sizes, registration_transforms, lens_distortions, camera_matrices)]
+    bounds = [
+        get_inner_rect(s, a, d, c, warp_mode=warp_mode)[0]
+        for s, a, d, c in zip(
+            image_sizes, registration_transforms, lens_distortions, camera_matrices
+        )
+    ]
+    edges = [
+        get_inner_rect(s, a, d, c, warp_mode=warp_mode)[1]
+        for s, a, d, c in zip(
+            image_sizes, registration_transforms, lens_distortions, camera_matrices
+        )
+    ]
     combined_bounds = get_combined_bounds(bounds, image_sizes[reference_band])
     left = np.ceil(combined_bounds.min.x)
     top = np.ceil(combined_bounds.min.y)
@@ -439,7 +533,13 @@ def find_crop_bounds(capture, registration_transforms, warp_mode=cv2.MOTION_HOMO
     return (left, top, width, height), edges
 
 
-def get_inner_rect(image_size, affine, distortion_coeffs, camera_matrix, warp_mode=cv2.MOTION_HOMOGRAPHY):
+def get_inner_rect(
+    image_size,
+    affine,
+    distortion_coeffs,
+    camera_matrix,
+    warp_mode=cv2.MOTION_HOMOGRAPHY,
+):
     w = image_size[0]
     h = image_size[1]
 
@@ -448,13 +548,41 @@ def get_inner_rect(image_size, affine, distortion_coeffs, camera_matrix, warp_mo
     top_edge = np.array([np.arange(0, w), np.ones(w) * 0]).T
     bottom_edge = np.array([np.arange(0, w), np.ones(w) * (h - 1)]).T
 
-    left_map = map_points(left_edge, image_size, affine, distortion_coeffs, camera_matrix, warp_mode=warp_mode)
+    left_map = map_points(
+        left_edge,
+        image_size,
+        affine,
+        distortion_coeffs,
+        camera_matrix,
+        warp_mode=warp_mode,
+    )
     left_bounds = min_max(left_map)
-    right_map = map_points(right_edge, image_size, affine, distortion_coeffs, camera_matrix, warp_mode=warp_mode)
+    right_map = map_points(
+        right_edge,
+        image_size,
+        affine,
+        distortion_coeffs,
+        camera_matrix,
+        warp_mode=warp_mode,
+    )
     right_bounds = min_max(right_map)
-    top_map = map_points(top_edge, image_size, affine, distortion_coeffs, camera_matrix, warp_mode=warp_mode)
+    top_map = map_points(
+        top_edge,
+        image_size,
+        affine,
+        distortion_coeffs,
+        camera_matrix,
+        warp_mode=warp_mode,
+    )
     top_bounds = min_max(top_map)
-    bottom_map = map_points(bottom_edge, image_size, affine, distortion_coeffs, camera_matrix, warp_mode=warp_mode)
+    bottom_map = map_points(
+        bottom_edge,
+        image_size,
+        affine,
+        distortion_coeffs,
+        camera_matrix,
+        warp_mode=warp_mode,
+    )
     bottom_bounds = min_max(bottom_map)
 
     bounds = Bounds()
@@ -510,17 +638,28 @@ def min_max(pts):
     return bounds
 
 
-def map_points(pts, image_size, warpMatrix, distortion_coeffs, camera_matrix, warp_mode=cv2.MOTION_HOMOGRAPHY):
+def map_points(
+    pts,
+    image_size,
+    warpMatrix,
+    distortion_coeffs,
+    camera_matrix,
+    warp_mode=cv2.MOTION_HOMOGRAPHY,
+):
     # extra dimension makes opencv happy
     pts = np.array([pts], dtype=float)
-    new_cam_mat, _ = cv2.getOptimalNewCameraMatrix(camera_matrix, distortion_coeffs, image_size, 1)
+    new_cam_mat, _ = cv2.getOptimalNewCameraMatrix(
+        camera_matrix, distortion_coeffs, image_size, 1
+    )
     new_pts = cv2.undistortPoints(pts, camera_matrix, distortion_coeffs, P=new_cam_mat)
     if warp_mode == cv2.MOTION_AFFINE:
         new_pts = cv2.transform(new_pts, cv2.invertAffineTransform(warpMatrix))
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
-        new_pts = cv2.perspectiveTransform(new_pts, np.linalg.inv(warpMatrix).astype(float))
+        new_pts = cv2.perspectiveTransform(
+            new_pts, np.linalg.inv(warpMatrix).astype(float)
+        )
     # apparently the output order has changed in 4.1.1 (possibly earlier from 3.4.3)
-    if cv2.__version__ <= '3.4.4':
+    if cv2.__version__ <= "3.4.4":
         return new_pts[0]
     else:
         return new_pts[:, 0, :]
@@ -528,22 +667,31 @@ def map_points(pts, image_size, warpMatrix, distortion_coeffs, camera_matrix, wa
 
 def save_capture(params):
     import micasense.capture as capture
-    cap = capture.Capture.from_filelist(params['file_list'])
-    output_filename = cap.uuid + '.tif'
-    if os.path.exists(output_filename) and not params['overwrite_existing']:
+
+    cap = capture.Capture.from_filelist(params["file_list"])
+    output_filename = cap.uuid + ".tif"
+    if os.path.exists(output_filename) and not params["overwrite_existing"]:
         return output_filename
 
-    full_output_path = os.path.join(params['output_path'], output_filename)
-    cap.create_aligned_capture(irradiance_list=params['irradiance_list'], warp_matrices=params['warp_matrices'])
-    cap.save_capture_as_stack(full_output_path, sort_by_wavelength=True, photometric=params['photometric'])
+    full_output_path = os.path.join(params["output_path"], output_filename)
+    cap.create_aligned_capture(
+        irradiance_list=params["irradiance_list"], warp_matrices=params["warp_matrices"]
+    )
+    cap.save_capture_as_stack(
+        full_output_path, sort_by_wavelength=True, photometric=params["photometric"]
+    )
 
-    if params['thumbnail_path'] is not None:
+    if params["thumbnail_path"] is not None:
         thumbnailFilename = cap.uuid
-        fullThumbnailPath = os.path.join(params['thumbnail_path'], thumbnailFilename)
-        rgb_band_indices = [cap.band_names_lower().index('red'), cap.band_names_lower().index('green'),
-                            cap.band_names_lower().index('blue')]
-        cap.save_capture_as_rgb(fullThumbnailPath + '_rgb.jpg', rgb_band_indices=rgb_band_indices,
-                                gamma=1.8)  # original indices, not sorted
+        fullThumbnailPath = os.path.join(params["thumbnail_path"], thumbnailFilename)
+        rgb_band_indices = [
+            cap.band_names_lower().index("red"),
+            cap.band_names_lower().index("green"),
+            cap.band_names_lower().index("blue"),
+        ]
+        cap.save_capture_as_rgb(
+            fullThumbnailPath + "_rgb.jpg", rgb_band_indices=rgb_band_indices, gamma=1.8
+        )  # original indices, not sorted
 
     return output_filename
 
@@ -556,26 +704,28 @@ def brovey_pan_sharpen(thecapture, weights=None):
     if weights is None:
         weights = [0.0725, 0.0745, 0.353, 0.070, 0.0296]
     cam_model = thecapture.camera_model
-    if cam_model not in ('RedEdge-P', 'Altum-PT'):
-        raise Exception("Pan-sharpening only works with RedEdge-P and Altum-PT")
-        blue = input_stack[:, :, 0]
-        green = input_stack[:, :, 1]
-        red = input_stack[:, :, 2]
-        rededge = input_stack[:, :, 4]
-        nir = input_stack[:, :, 3]
+    if cam_model in ("RedEdge-P", "Altum-PT"):
+        input_stack = np.zeros(0)
+        input_stack[:, :, 0]
+        input_stack[:, :, 1]
+        input_stack[:, :, 2]
+        input_stack[:, :, 4]
+        input_stack[:, :, 3]
         panchro = input_stack[:, :, 5]
         output_band_count = input_stack.shape[2] - 1
-        output_stack = np.zeros((input_stack.shape[0], input_stack.shape[1], output_band_count), dtype=float)
+        output_stack = np.zeros(
+            (input_stack.shape[0], input_stack.shape[1], output_band_count), dtype=float
+        )
         spectral_weight = np.zeros_like(panchro)
         for band in range(0, 5):
             spectral_weight += input_stack[:, :, band] * weights[band]
         # avoid division by zero for some pixels
-        spectral_weight[spectral_weight < 1e-9] = 1.
+        spectral_weight[spectral_weight < 1e-9] = 1.0
 
         PW = input_stack[:, :, 5] / spectral_weight
         for band in range(0, 5):
             output_stack[:, :, band] = input_stack[:, :, band] * PW
-        if cam_model == 'Altum-PT':
+        if cam_model == "Altum-PT":
             # output_band_count = output_band_count
             output_stack[:, :, 5] = input_stack[:, :, 6]
         return output_stack
@@ -583,7 +733,9 @@ def brovey_pan_sharpen(thecapture, weights=None):
         raise Exception("Pan-sharpening only works with RedEdge-P and Altum-PT")
 
 
-def radiometric_pan_sharpen(capture, warp_matrices=None, panchro_band=5, irradiance_list=None):
+def radiometric_pan_sharpen(
+    capture, warp_matrices=None, panchro_band=5, irradiance_list=None
+):
     # this function performs a radiometrically accurate pansharpening on the input capture
     # if no warp matrices are supplied to align the multispec images to the pan band
     # the camera calibration is used (which produces reasonably well aligned imagers in most cases)
@@ -602,7 +754,7 @@ def radiometric_pan_sharpen(capture, warp_matrices=None, panchro_band=5, irradia
 
     # we need this , because the panchro band doesn't necessarily fully cover the multispec bands
     pan_mask = binary_closing(pan > 1e-4)
-    if 'LWIR' in capture.band_names():
+    if "LWIR" in capture.band_names():
         sigma = 12 / 3008 * h
         panf = gaussian(pan, sigma)
     pan[pan < 1e-4] = 1.0
@@ -616,10 +768,20 @@ def radiometric_pan_sharpen(capture, warp_matrices=None, panchro_band=5, irradia
             img = i.undistorted_reflectance()
         hLow, wLow = img.shape
         if i.band_index != panchro_band:
-            if i.band_name == 'LWIR':
-                pLow = warp(panf, np.linalg.inv(wm), output_shape=(hLow, wLow), preserve_range=True)
+            if i.band_name == "LWIR":
+                pLow = warp(
+                    panf,
+                    np.linalg.inv(wm),
+                    output_shape=(hLow, wLow),
+                    preserve_range=True,
+                )
             else:
-                pLow = warp(pan, np.linalg.inv(wm), output_shape=(hLow, wLow), preserve_range=True)
+                pLow = warp(
+                    pan,
+                    np.linalg.inv(wm),
+                    output_shape=(hLow, wLow),
+                    preserve_range=True,
+                )
             panMaskLow = warp(pan_mask, np.linalg.inv(wm), output_shape=(hLow, wLow))
             pLow[pLow <= 1e-4] = 1.0
             if irradiance_list is None:
@@ -628,26 +790,40 @@ def radiometric_pan_sharpen(capture, warp_matrices=None, panchro_band=5, irradia
             else:
                 mask = binary_closing(i.undistorted_reflectance() > 1e-4)
                 r = i.undistorted_reflectance() / pLow
-            if i.band_name == 'LWIR':
+            if i.band_name == "LWIR":
                 H = warp(r, wm, output_shape=(h, w)) * panf
             else:
                 H = warp(r, wm, output_shape=(h, w)) * pan
             if irradiance_list is None:
-                U = warp(i.undistorted_radiance(), wm, output_shape=(h, w), preserve_range=True)
+                U = warp(
+                    i.undistorted_radiance(),
+                    wm,
+                    output_shape=(h, w),
+                    preserve_range=True,
+                )
             else:
-                U = warp(i.undistorted_reflectance(), wm, output_shape=(h, w), preserve_range=True)
+                U = warp(
+                    i.undistorted_reflectance(),
+                    wm,
+                    output_shape=(h, w),
+                    preserve_range=True,
+                )
             overlap += warp(mask * panMaskLow, wm, output_shape=(h, w))
             pansharpened_stack.append(H)
             upsampled_stack.append(U)
         else:
-            overlap += (pan_mask > 0)
+            overlap += pan_mask > 0
             pansharpened_stack.append(pan)
             upsampled_stack.append(pan)
 
     N = len(capture.images)
     (x0, y0), (x1, y1) = findoptimal_rect_noholes(overlap, nbands=N)
-    pansharpened_stack = np.moveaxis(np.array(pansharpened_stack), 0, 2)[y0 + 1:y1 - 1, x0 + 1:x1 - 1, :]
-    upsampled_stack = np.moveaxis(np.array(upsampled_stack), 0, 2)[y0 + 1:y1 - 1, x0 + 1:x1 - 1, :]
+    pansharpened_stack = np.moveaxis(np.array(pansharpened_stack), 0, 2)[
+        y0 + 1 : y1 - 1, x0 + 1 : x1 - 1, :
+    ]
+    upsampled_stack = np.moveaxis(np.array(upsampled_stack), 0, 2)[
+        y0 + 1 : y1 - 1, x0 + 1 : x1 - 1, :
+    ]
 
     return pansharpened_stack, upsampled_stack
 
@@ -660,23 +836,32 @@ def prepare_exif_for_stacks(thecapture, thefilename):
     # eventually it would be nice to add the capture ID, flight ID,
     # and yaw/pitch/roll, but these are non-standard exif tags,
     # so it is more difficult.
-    attitude = thecapture.dls_pose()
+    thecapture.dls_pose()
     theid = thecapture.uuid
-    flightid = thecapture.flightid
     focallength = thecapture.focal_length()
-    latdir = 'N'
+    latdir = "N"
     if lat < 0:
-        latdir = 'S'
-    londir = 'E'
+        latdir = "S"
+    londir = "E"
     if lon < 0:
-        londir = 'W'
-    exif_data = [{"Capture ID": theid}, {"Filename": thefilename}, {"Model": str(thecapture.camera_model)},
-                 {"GPSDateStamp": thecapture.utc_time().strftime("%Y:%m:%d")},
-                 {"GPSTimeStamp": thecapture.utc_time().strftime("%H:%M:%S.%f")}, {"GPSLatitude": str(lat)},
-                 {"GpsLatitudeRef": latdir}, {"GPSLongitude": str(lon)}, {"GPSLongitudeRef": londir},
-                 {"GPSAltitude": str(alt) + " m Above Sea Level"}, {"GPSAltitudeRef": "0"},
-                 {"FocalLength": str(focallength)}, {"XResolution": str(resolution[0])},
-                 {"YResolution": str(resolution[1])}, {"ResolutionUnits": "mm"}]
+        londir = "W"
+    exif_data = [
+        {"Capture ID": theid},
+        {"Filename": thefilename},
+        {"Model": str(thecapture.camera_model)},
+        {"GPSDateStamp": thecapture.utc_time().strftime("%Y:%m:%d")},
+        {"GPSTimeStamp": thecapture.utc_time().strftime("%H:%M:%S.%f")},
+        {"GPSLatitude": str(lat)},
+        {"GpsLatitudeRef": latdir},
+        {"GPSLongitude": str(lon)},
+        {"GPSLongitudeRef": londir},
+        {"GPSAltitude": str(alt) + " m Above Sea Level"},
+        {"GPSAltitudeRef": "0"},
+        {"FocalLength": str(focallength)},
+        {"XResolution": str(resolution[0])},
+        {"YResolution": str(resolution[1])},
+        {"ResolutionUnits": "mm"},
+    ]
     return exif_data
 
 
@@ -689,16 +874,17 @@ def write_exif_to_stack(thecapture=None, thefilename=None, existing_exif_list=No
         exif_data = existing_exif_list
     else:
         raise Exception(
-            "Please provide an existing capture object and filename or a list of existing exif data for batch processing")
+            "Please provide an existing capture object and filename or a list of existing exif data for batch processing"
+        )
     exif_bytes_list = []
     logger.debug("EXIF_DATA %s", exif_data)
 
     for exif in exif_data:
         for key, val in exif.items():
-            if key != 'Capture ID' and key != 'Filename':
+            if key != "Capture ID" and key != "Filename":
                 new_value = str.encode("-" + key + "=" + val)
                 exif_bytes_list.append(new_value)
-            if key == 'Filename':
+            if key == "Filename":
                 thefilename = val
     thefilename = str.encode(thefilename)
 
