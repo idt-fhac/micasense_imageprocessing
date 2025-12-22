@@ -272,6 +272,7 @@ def aligned_altum_capture(non_panel_altum_capture):
     return non_panel_altum_capture
 
 
+@pytest.mark.newgdal
 def test_stack_export(aligned_altum_capture, tmpdir):
     pathstr = str(tmpdir.join("test_bgrent.tiff"))
     aligned_altum_capture.save_capture_as_stack(pathstr)
