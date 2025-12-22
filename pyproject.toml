@@ -27,6 +27,15 @@ dependencies = [
     "pyzbar"
 ]
 
+[project.urls]
+Homepage = "https://github.com/brainergylab/micasense_imageprocessing"
+
+[project.optional-dependencies]
+test = [
+  "pytest >= 7.4.3",
+  "pytest-cov",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["micasense"]
@@ -34,7 +43,3 @@ exclude = ["data*", "tests*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "micasense.__version__" }
-
-[project.urls]
-Homepage = "https://github.com/brainergylab/micasense_imageprocessing"
-
