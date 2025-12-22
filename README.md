@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/micasense/imageprocessing.svg?branch=master)](https://travis-ci.org/micasense/imageprocessing)
+![Lint Status](https://github.com/brainergylab/micasense_imageprocessing/actions/workflows/python-test.yml/badge.svg)
 
 ## MicaSense RedEdge and Altum Image Processing Tutorials
 
@@ -50,7 +50,7 @@ applications of RedEdge imagery. In general, these are intended for developers t
 managing python packages and third party software. The purpose of this code is readability and clarity to help others
 develop processing workflows, therefore performance may not be optimal.
 
-While this code is similar to an installable python library (and supports the `python setup.py install` process) the
+While this code is similar to an installable python library (and supports the `pip install -e .` process) the
 main purpose of this library is one of documentation and education. For this reason, we expect most users to be looking
 at the source code for understanding or improvement, so they will run the notebooks from the directory that the library
 was `git clone`d it into.
@@ -79,7 +79,7 @@ jupyter "home" tab to open the different notebooks.
 ### Contribution guidelines
 
 Find a problem with the tutorial? Please look through the existing issues (open and closed) and if it's
-new, [create an issue on github](https://github.com/micasense/imageprocessing/issues).
+new, [create an issue on github](https://github.com/brainergylab/micasense_imageprocessing/issues).
 
 Want to correct an issue or expand library functionality? Fork the repository, make your fix, and submit a pull request
 on github.
@@ -90,7 +90,7 @@ your `micasense` conda environment to make sure you have all of the expected pac
 
 This code is a community effort and is not supported by MicaSense support. Please don't reach out to MicaSense support
 for issues with this codebase; instead, work through the above troubleshooting steps and
-then [create an issue on github](https://github.com/micasense/imageprocessing/issues).
+then [create an issue on github](https://github.com/brainergylab/micasense_imageprocessing/issues).
 
 ### Tests
 
