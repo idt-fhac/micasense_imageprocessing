@@ -21,19 +21,22 @@ jobs:
     needs: [lint]
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v5
+        with:
+          lfs: true
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -qq install exiftool libgdal-dev
-          pip install "gdal<3.9"
+          sudo apt-get -qq install exiftool libgdal-dev libzbar0t64
+          GDAL_VERSION=$(gdal-config --version)
+          pip install "gdal==$GDAL_VERSION"
       - name: Test with pytest
         run: |
           pip install -e .[test]

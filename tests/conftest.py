@@ -117,7 +117,9 @@ def flight_image_name(rededge_files_dir: Path):
 
 @pytest.fixture()
 def altum_files_dir():
-    return Path(__file__).parent.parent / "data" / "ALTUM"
+    path = Path(__file__).parent.parent / "data" / "ALTUM"
+    assert path.is_dir()
+    return path
 
 
 @pytest.fixture()
