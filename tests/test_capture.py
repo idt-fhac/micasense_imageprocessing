@@ -267,7 +267,7 @@ def test_rgb_png(aligned_altum_capture, tmpdir):
 
 
 def test_rgb_jpg_decimation(aligned_altum_capture, tmpdir):
-    import imageio
+    import imageio.v3 as imageio
     decimations = [2, 5, 8]
     for decimation in decimations:
         pathstr = str(tmpdir.join('test_rgb_{}x.jpg'.format(decimation)))

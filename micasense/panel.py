@@ -50,7 +50,7 @@ class Panel(object):
         self.gray8b = np.zeros(img.radiance().shape, dtype='uint8')
         cv2.convertScaleAbs(img.undistorted(img.radiance()), self.gray8b, 256.0 / scale, -1.0 * scale * bias)
 
-        if self.image.auto_calibration_image and ~ignore_autocalibration:
+        if self.image.auto_calibration_image and not ignore_autocalibration:
             self.__panel_type = "auto"  # panels the camera found we call auto
             if panel_corners is not None:
                 self.__panel_bounds = np.array(panel_corners)

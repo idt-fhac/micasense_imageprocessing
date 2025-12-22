@@ -24,7 +24,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.pylab import cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
@@ -68,14 +67,14 @@ def plot_overlay_withcolorbar(imgbase, imgcolor, title=None, figsize=None, vmin=
     fig, axis = plt.subplots(1, 1, figsize=figsize, squeeze=False)
     base = axis[0][0].imshow(imgbase)
     if overlay_steps is not None:
-        overlay_colormap = cm.get_cmap(overlay_colormap, overlay_steps)
+        overlay_colormap = plt.get_cmap(overlay_colormap, overlay_steps)
     rad2 = axis[0][0].imshow(imgcolor, vmin=vmin, vmax=vmax, alpha=overlay_alpha, cmap=overlay_colormap)
     if display_contours:
         if contour_steps is None:
             contour_steps = overlay_steps
         if contour_alpha is None:
             contour_alpha = overlay_alpha
-        contour_cmap = cm.get_cmap(overlay_colormap, contour_steps)
+        contour_cmap = plt.get_cmap(overlay_colormap, contour_steps)
         contour_list = np.arange(vmin, vmax, (vmax - vmin) / contour_steps)
         rad3 = axis[0][0].contour(imgcolor, contour_list, cmap=contour_cmap, alpha=contour_alpha)
         fontsize = 8 + (max(figsize) / 10) * 2
