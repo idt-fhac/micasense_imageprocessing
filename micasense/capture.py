@@ -27,6 +27,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 import logging
 import math
 import os
@@ -37,8 +38,12 @@ import imageio
 import numpy as np
 from skimage.feature import match_descriptors, SIFT
 from skimage.measure import ransac
-from skimage.transform import estimate_transform, FundamentalMatrixTransform, ProjectiveTransform, \
-    resize
+from skimage.transform import (
+    estimate_transform,
+    FundamentalMatrixTransform,
+    ProjectiveTransform,
+    resize,
+)
 
 import micasense.image as image
 import micasense.imageutils as imageutils
@@ -75,7 +80,9 @@ class Capture(object):
         elif isinstance(images, list):
             self.images = images
         else:
-            raise RuntimeError("Provide an Image or list of Images to create a Capture.")
+            raise RuntimeError(
+                "Provide an Image or list of Images to create a Capture."
+            )
         self.num_bands = len(self.images)
         self.images.sort()
         capture_ids = [img.capture_id for img in self.images]
@@ -154,8 +161,12 @@ class Capture(object):
             raise IOError("No files provided. Check your file paths.")
         for fle in file_list:
             if not os.path.isfile(fle):
-                raise IOError(f"All files in file list must be a file. The following file is not:\n{fle}")
-        images = [image.Image(fle, allow_uncalibrated=allow_uncalibrated) for fle in file_list]
+                raise IOError(
+                    f"All files in file list must be a file. The following file is not:\n{fle}"
+                )
+        images = [
+            image.Image(fle, allow_uncalibrated=allow_uncalibrated) for fle in file_list
+        ]
         return cls(images)
 
     def __get_reference_index(self):
@@ -163,7 +174,9 @@ class Capture(object):
         Find the reference image which has the smallest rig offsets - they should be (0,0).
         :return: ndarray of ints - The indices of the minimum values along an axis.
         """
-        return np.argmin((np.array([i.rig_xy_offset_in_px() for i in self.images]) ** 2).sum(1))
+        return np.argmin(
+            (np.array([i.rig_xy_offset_in_px() for i in self.images]) ** 2).sum(1)
+        )
 
     def __plot(self, imgs, num_cols=2, plot_type=None, colorbar=True, figsize=(14, 14)):
         """
@@ -176,17 +189,23 @@ class Capture(object):
         :return: plotutils result. matplotlib Figure and Axis in both cases.
         """
         if plot_type is None:
-            plot_type = ''
+            plot_type = ""
         else:
             titles = [
-                '{} Band {} {}'.format(str(img.band_name), str(img.band_index),
-                                       plot_type if img.band_name.upper() != 'LWIR' else 'Brightness Temperature')
-                for img
-                in self.images
+                "{} Band {} {}".format(
+                    str(img.band_name),
+                    str(img.band_index),
+                    plot_type
+                    if img.band_name.upper() != "LWIR"
+                    else "Brightness Temperature",
+                )
+                for img in self.images
             ]
         num_rows = int(math.ceil(float(len(self.images)) / float(num_cols)))
         if colorbar:
-            return plotutils.subplotwithcolorbar(num_rows, num_cols, imgs, titles, figsize)
+            return plotutils.subplotwithcolorbar(
+                num_rows, num_cols, imgs, titles, figsize
+            )
         else:
             return plotutils.subplot(num_rows, num_cols, imgs, titles, figsize)
 
@@ -256,31 +275,29 @@ class Capture(object):
 
     def focal_length(self):
         """Returns focal length of multispectral bands or of panchromatic band if applicable."""
-        if 'Panchro' in self.eo_band_names():
-            return self.images[self.eo_band_names().index('Panchro')].focal_length
+        if "Panchro" in self.eo_band_names():
+            return self.images[self.eo_band_names().index("Panchro")].focal_length
         else:
             return self.images[0].focal_length
 
     def plot_raw(self):
         """Plot raw images as the data came from the camera."""
-        self.__plot([img.raw() for img in self.images],
-                    plot_type='Raw')
+        self.__plot([img.raw() for img in self.images], plot_type="Raw")
 
     def plot_vignette(self):
         """Compute (if necessary) and plot vignette correction images."""
-        self.__plot([img.vignette()[0].T for img in self.images],
-                    plot_type='Vignette')
+        self.__plot([img.vignette()[0].T for img in self.images], plot_type="Vignette")
 
     def plot_radiance(self):
         """Compute (if necessary) and plot radiance images."""
-        self.__plot([img.radiance() for img in self.images],
-                    plot_type='Radiance')
+        self.__plot([img.radiance() for img in self.images], plot_type="Radiance")
 
     def plot_undistorted_radiance(self):
         """Compute (if necessary) and plot undistorted radiance images."""
         self.__plot(
             [img.undistorted(img.radiance()) for img in self.images],
-            plot_type='Undistorted Radiance')
+            plot_type="Undistorted Radiance",
+        )
 
     def plot_undistorted_reflectance(self, irradiance_list):
         """
@@ -289,7 +306,8 @@ class Capture(object):
         """
         self.__plot(
             self.undistorted_reflectance(irradiance_list),
-            plot_type='Undistorted Reflectance')
+            plot_type="Undistorted Reflectance",
+        )
 
     def compute_radiance(self):
         """
@@ -313,11 +331,16 @@ class Capture(object):
         :return: None
         """
         if irradiance_list is not None:
-            [img.reflectance(irradiance_list[i], force_recompute=force_recompute) for i, img in enumerate(self.images)]
+            [
+                img.reflectance(irradiance_list[i], force_recompute=force_recompute)
+                for i, img in enumerate(self.images)
+            ]
         else:
             [img.reflectance(force_recompute=force_recompute) for img in self.images]
 
-    def compute_undistorted_reflectance(self, irradiance_list=None, force_recompute=True):
+    def compute_undistorted_reflectance(
+        self, irradiance_list=None, force_recompute=True
+    ):
         """
         Compute undistorted image reflectance from irradiance list.
         :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
@@ -325,29 +348,40 @@ class Capture(object):
         :return: None
         """
         if irradiance_list is not None:
-            [img.undistorted_reflectance(irradiance_list[i], force_recompute=force_recompute) for i, img in
-             enumerate(self.images)]
+            [
+                img.undistorted_reflectance(
+                    irradiance_list[i], force_recompute=force_recompute
+                )
+                for i, img in enumerate(self.images)
+            ]
         else:
-            [img.undistorted_reflectance(force_recompute=force_recompute) for img in self.images]
+            [
+                img.undistorted_reflectance(force_recompute=force_recompute)
+                for img in self.images
+            ]
 
     def eo_images(self):
         """Returns a list of the EO Images in the Capture."""
-        return [img for img in self.images if img.band_name != 'LWIR']
+        return [img for img in self.images if img.band_name != "LWIR"]
 
     def lw_images(self):
         """Returns a list of the longwave infrared Images in the Capture."""
-        return [img for img in self.images if img.band_name == 'LWIR']
+        return [img for img in self.images if img.band_name == "LWIR"]
 
     def eo_indices(self):
         """Returns a list of the indexes of the EO Images in the Capture."""
-        return [index for index, img in enumerate(self.images) if img.band_name != 'LWIR']
+        return [
+            index for index, img in enumerate(self.images) if img.band_name != "LWIR"
+        ]
 
     def eo_band_names(self):
-        return [band for band in self.band_names() if band != 'LWIR']
+        return [band for band in self.band_names() if band != "LWIR"]
 
     def lw_indices(self):
         """Returns a list of the indexes of the longwave infrared Images in the Capture."""
-        return [index for index, img in enumerate(self.images) if img.band_name == 'LWIR']
+        return [
+            index for index, img in enumerate(self.images) if img.band_name == "LWIR"
+        ]
 
     def reflectance(self, irradiance_list):
         """
@@ -355,7 +389,10 @@ class Capture(object):
         :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
         :return: List of reflectance EO and long wave infrared Images for given irradiance.
         """
-        eo_imgs = [img.reflectance(irradiance_list[i]) for i, img in enumerate(self.eo_images())]
+        eo_imgs = [
+            img.reflectance(irradiance_list[i])
+            for i, img in enumerate(self.eo_images())
+        ]
         lw_imgs = [img.reflectance() for i, img in enumerate(self.lw_images())]
         return eo_imgs + lw_imgs
 
@@ -365,8 +402,13 @@ class Capture(object):
         :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
         :return: List of undistorted reflectance images for given irradiance.
         """
-        eo_imgs = [img.undistorted(img.reflectance(irradiance_list[i])) for i, img in enumerate(self.eo_images())]
-        lw_imgs = [img.undistorted(img.reflectance()) for i, img in enumerate(self.lw_images())]
+        eo_imgs = [
+            img.undistorted(img.reflectance(irradiance_list[i]))
+            for i, img in enumerate(self.eo_images())
+        ]
+        lw_imgs = [
+            img.undistorted(img.reflectance()) for i, img in enumerate(self.lw_images())
+        ]
         return eo_imgs + lw_imgs
 
     def panels_in_all_expected_images(self):
@@ -374,7 +416,9 @@ class Capture(object):
         Check if all expected reflectance panels are detected in the EO Images in the Capture.
         :return: True if reflectance panels are detected.
         """
-        expected_panels = sum(str(img.band_name).upper() != 'LWIR' for img in self.images)
+        expected_panels = sum(
+            str(img.band_name).upper() != "LWIR" for img in self.images
+        )
         return self.detect_panels() == expected_panels
 
     def panel_raw(self):
@@ -405,9 +449,13 @@ class Capture(object):
             if not self.panels_in_all_expected_images():
                 raise IOError("Panels not detected in all images.")
         if reflectances is None:
-            reflectances = [panel.reflectance_from_panel_serial() for panel in self.panels]
+            reflectances = [
+                panel.reflectance_from_panel_serial() for panel in self.panels
+            ]
         if len(reflectances) != len(self.panels):
-            raise ValueError("Length of panel reflectances must match length of Images.")
+            raise ValueError(
+                "Length of panel reflectances must match length of Images."
+            )
         irradiance_list = []
         for i, p in enumerate(self.panels):
             mean_irr = p.irradiance_mean(reflectances[i])
@@ -439,15 +487,21 @@ class Capture(object):
     def detect_panels(self):
         """Detect reflectance panels in the Capture, and return a count."""
         from micasense.panel import Panel
+
         if self.panels is not None and self.detected_panel_count == len(self.images):
             return self.detected_panel_count
-        self.panels = [Panel(img, panel_corners=pc) for img, pc in zip(self.images, self.panelCorners)]
+        self.panels = [
+            Panel(img, panel_corners=pc)
+            for img, pc in zip(self.images, self.panelCorners)
+        ]
         self.detected_panel_count = 0
         for p in self.panels:
             if p.panel_detected():
                 self.detected_panel_count += 1
         # is panelCorners are defined by hand
-        if self.panelCorners is not None and all(corner is not None for corner in self.panelCorners):
+        if self.panelCorners is not None and all(
+            corner is not None for corner in self.panelCorners
+        ):
             self.detected_panel_count = len(self.panelCorners)
         return self.detected_panel_count
 
@@ -457,9 +511,7 @@ class Capture(object):
             if not self.panels_in_all_expected_images():
                 raise IOError("Panels not detected in all images.")
         self.__plot(
-            [p.plot_image() for p in self.panels],
-            plot_type='Panels',
-            colorbar=False
+            [p.plot_image() for p in self.panels], plot_type="Panels", colorbar=False
         )
 
     def set_external_rig_relatives(self, external_rig_relatives):
@@ -494,8 +546,13 @@ class Capture(object):
         warp_matrices = [np.linalg.inv(im.get_homography(ref)) for im in self.images]
         return [w / w[2, 2] for w in warp_matrices]
 
-    def create_aligned_capture(self, irradiance_list=None, warp_matrices=None, img_type=None,
-                               motion_type=cv2.MOTION_HOMOGRAPHY):
+    def create_aligned_capture(
+        self,
+        irradiance_list=None,
+        warp_matrices=None,
+        img_type=None,
+        motion_type=cv2.MOTION_HOMOGRAPHY,
+    ):
         """
         Creates aligned Capture. Computes undistorted radiance or reflectance images if necessary.
         :param irradiance_list: List of mean panel region irradiance.
@@ -506,21 +563,26 @@ class Capture(object):
                             For Altum images only use HOMOGRAPHY.
         :return: ndarray with alignment changes
         """
-        if img_type is None and irradiance_list is None and self.dls_irradiance() is None:
+        if (
+            img_type is None
+            and irradiance_list is None
+            and self.dls_irradiance() is None
+        ):
             self.compute_undistorted_radiance()
-            img_type = 'radiance'
+            img_type = "radiance"
         elif img_type is None:
             if irradiance_list is None:
                 irradiance_list = self.dls_irradiance() + [0]
             self.compute_undistorted_reflectance(irradiance_list)
-            img_type = 'reflectance'
+            img_type = "reflectance"
         if warp_matrices is None:
             warp_matrices = self.get_warp_matrices()
-        if self.camera_model in ('RedEdge-P', 'Altum-PT'):
+        if self.camera_model in ("RedEdge-P", "Altum-PT"):
             match_index = 5
             reference_band = 5
             logging.warning(
-                "For RedEdge-P or Altum-PT, you should use SIFT_align_capture instead of create_aligned_capture")
+                "For RedEdge-P or Altum-PT, you should use SIFT_align_capture instead of create_aligned_capture"
+            )
         # for RedEdge-MX Dual Camera System
         elif len(self.eo_band_names()) == 10:
             match_index = 4
@@ -528,14 +590,17 @@ class Capture(object):
         else:
             match_index = 1
             reference_band = 0
-        cropped_dimensions, _ = imageutils.find_crop_bounds(self, warp_matrices, warp_mode=motion_type,
-                                                            reference_band=reference_band)
-        self.__aligned_capture = imageutils.aligned_capture(self,
-                                                            warp_matrices,
-                                                            motion_type,
-                                                            cropped_dimensions,
-                                                            match_index,
-                                                            img_type=img_type)
+        cropped_dimensions, _ = imageutils.find_crop_bounds(
+            self, warp_matrices, warp_mode=motion_type, reference_band=reference_band
+        )
+        self.__aligned_capture = imageutils.aligned_capture(
+            self,
+            warp_matrices,
+            motion_type,
+            cropped_dimensions,
+            match_index,
+            img_type=img_type,
+        )
         return self.__aligned_capture
 
     def aligned_shape(self):
@@ -544,26 +609,38 @@ class Capture(object):
         :return: Tuple of array dimensions for aligned_capture
         """
         if self.__aligned_capture is None:
-            raise RuntimeError("Call Capture.create_aligned_capture() prior to saving as stack.")
+            raise RuntimeError(
+                "Call Capture.create_aligned_capture() prior to saving as stack."
+            )
         return self.__aligned_capture.shape
 
-    def radiometric_pan_sharpened_aligned_capture(self, warp_matrices=None, irradiance_list=None, img_type: str = ''):
+    def radiometric_pan_sharpened_aligned_capture(
+        self, warp_matrices=None, irradiance_list=None, img_type: str = ""
+    ):
         if irradiance_list is None and self.dls_irradiance() is None:
             self.compute_undistorted_radiance()
-            img_type = 'radiance'
-        elif img_type == 'reflectance' and irradiance_list is not None:
+            img_type = "radiance"
+        elif img_type == "reflectance" and irradiance_list is not None:
             self.compute_undistorted_reflectance(irradiance_list)
         elif irradiance_list is None:
             irradiance_list = self.dls_irradiance() + [0]
             self.compute_undistorted_reflectance(irradiance_list)
-            img_type = 'reflectance'
-        self.__aligned_radiometric_pan_sharpened_capture = imageutils.radiometric_pan_sharpen(self,
-                                                                                              warp_matrices=warp_matrices,
-                                                                                              irradiance_list=irradiance_list)
+            img_type = "reflectance"
+        self.__aligned_radiometric_pan_sharpened_capture = (
+            imageutils.radiometric_pan_sharpen(
+                self, warp_matrices=warp_matrices, irradiance_list=irradiance_list
+            )
+        )
         return self.__aligned_radiometric_pan_sharpened_capture
 
-    def save_capture_as_stack(self, outfilename, sort_by_wavelength=False, photometric='MINISBLACK', pansharpen=False,
-                              write_exif=True):
+    def save_capture_as_stack(
+        self,
+        outfilename,
+        sort_by_wavelength=False,
+        photometric="MINISBLACK",
+        pansharpen=False,
+        write_exif=True,
+    ):
         """
         Output the Images in the Capture object as GTiff image stack.
         :param out_file_name: str system file path
@@ -572,11 +649,16 @@ class Capture(object):
         """
         from osgeo.gdal import GetDriverByName, GDT_UInt16
         from osgeo import gdal
+
         gdal.UseExceptions()
 
-        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+        if (
+            self.__aligned_capture is None
+            and self.__aligned_radiometric_pan_sharpened_capture is None
+        ):
             raise RuntimeError(
-                "Call Capture.create_aligned_capture() prior to saving as stack.")
+                "Call Capture.create_aligned_capture() prior to saving as stack."
+            )
         band_names = self.band_names()
         if "Panchro" in band_names and pansharpen:
             aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[0]
@@ -586,30 +668,44 @@ class Capture(object):
             aligned_cap = self.__aligned_capture
 
         rows, cols, bands = aligned_cap.shape
-        driver = GetDriverByName('GTiff')
+        driver = GetDriverByName("GTiff")
 
-        outRaster = driver.Create(outfilename, cols, rows, bands, GDT_UInt16,
-                                  options=['INTERLEAVE=BAND', 'COMPRESS=DEFLATE', f'PHOTOMETRIC={photometric}'])
+        outRaster = driver.Create(
+            outfilename,
+            cols,
+            rows,
+            bands,
+            GDT_UInt16,
+            options=[
+                "INTERLEAVE=BAND",
+                "COMPRESS=DEFLATE",
+                f"PHOTOMETRIC={photometric}",
+            ],
+        )
         try:
             if outRaster is None:
                 raise IOError("could not load gdal GeoTiff driver")
 
             if sort_by_wavelength:
-                eo_list = list(np.argsort(np.array(self.center_wavelengths())[self.eo_indices()]))
+                eo_list = list(
+                    np.argsort(np.array(self.center_wavelengths())[self.eo_indices()])
+                )
                 eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
 
             else:
                 eo_list = self.eo_indices()
                 eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
 
-            eo_count = len(eo_list)
+            len(eo_list)
 
             for outband_count, inband in enumerate(eo_list):
                 outband = outRaster.GetRasterBand(outband_count + 1)
                 outdata = aligned_cap[:, :, inband]
                 outdata[outdata < 0] = 0
-                outdata[outdata > 2] = 2  # limit reflectance data to 200% to allow some specular reflections
-                outdata = outdata * 32767 # scale reflectance images so 100% = 32768
+                outdata[outdata > 2] = (
+                    2  # limit reflectance data to 200% to allow some specular reflections
+                )
+                outdata = outdata * 32767  # scale reflectance images so 100% = 32768
                 outdata = outdata.astype(np.ushort)
                 outband.SetDescription(eo_bands[outband_count])
                 outband.WriteArray(outdata)
@@ -617,12 +713,13 @@ class Capture(object):
 
             for outband_count, inband in enumerate(self.lw_indices()):
                 outband = outRaster.GetRasterBand(len(eo_bands) + outband_count + 1)
-                outdata = (aligned_cap[:, :,
-                           inband] + 273.15) * 100  # scale data from float degC to back to centi-Kelvin to fit into uint16
+                outdata = (
+                    (aligned_cap[:, :, inband] + 273.15) * 100
+                )  # scale data from float degC to back to centi-Kelvin to fit into uint16
                 outdata[outdata < 0] = 0
                 outdata[outdata > 65535] = 65535
                 outdata = outdata.astype(np.ushort)
-                outband.SetDescription('LWIR')
+                outband.SetDescription("LWIR")
                 outband.WriteArray(outdata)
                 outband.FlushCache()
         finally:
@@ -630,8 +727,15 @@ class Capture(object):
             if write_exif:
                 imageutils.write_exif_to_stack(self, outfilename)
 
-    def save_channels_as_separate_tiffs(self, output_directory, out_filename, sort_by_wavelength=False, photometric='MINISBLACK',
-                                        pansharpen=False, write_exif=True):
+    def save_channels_as_separate_tiffs(
+        self,
+        output_directory,
+        out_filename,
+        sort_by_wavelength=False,
+        photometric="MINISBLACK",
+        pansharpen=False,
+        write_exif=True,
+    ):
         """
         Output the Images in the Capture object as separate GTiff images for each channel.
         :param output_directory: str, the directory to save the TIFF files
@@ -644,11 +748,16 @@ class Capture(object):
         # from osgeo import gdal, osr
         from osgeo.gdal import GetDriverByName, GDT_UInt16
         from osgeo import gdal
+
         gdal.UseExceptions()
 
-        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+        if (
+            self.__aligned_capture is None
+            and self.__aligned_radiometric_pan_sharpened_capture is None
+        ):
             raise RuntimeError(
-                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs.")
+                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs."
+            )
         band_names = self.band_names()
         if "Panchro" in band_names and pansharpen:
             aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[0]
@@ -660,34 +769,59 @@ class Capture(object):
         rows, cols, bands = aligned_cap.shape
 
         if sort_by_wavelength:
-            eo_list = list(np.argsort(np.array(self.center_wavelengths())[self.eo_indices()]))
+            eo_list = list(
+                np.argsort(np.array(self.center_wavelengths())[self.eo_indices()])
+            )
             eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
         else:
             eo_list = self.eo_indices()
             eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
 
         eo_count = len(eo_list)
-        multispec_min = np.min(np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 0.01))
-        multispec_max = np.max(np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 99.99))
+        multispec_min = np.min(
+            np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 0.01)
+        )
+        multispec_max = np.max(
+            np.percentile(aligned_cap[:, :, 1:eo_count].flatten(), 99.99)
+        )
 
         outfilenames = []
         for outband_count, inband in enumerate(eo_list):
             bandname = eo_bands[outband_count]
             bandname = bandname.replace(" ", "")
-            outfilename = os.path.join(output_directory, out_filename + str(outband_count+1) + f"_{bandname}.tif")
+            outfilename = os.path.join(
+                output_directory,
+                out_filename + str(outband_count + 1) + f"_{bandname}.tif",
+            )
             # outfilename.replace(" ", "")
             outfilenames.append(outfilename)
             # print(outfilename)
             # print(f"Zeilen: {cols}, Spalten: {rows}")
-            driver = GetDriverByName('GTiff')
-            outRaster = driver.Create(outfilename, cols, rows, 1, GDT_UInt16, 
-                                      options=['INTERLEAVE=BAND', 'COMPRESS=DEFLATE', f'PHOTOMETRIC={photometric}'])
+            driver = GetDriverByName("GTiff")
+            outRaster = driver.Create(
+                outfilename,
+                cols,
+                rows,
+                1,
+                GDT_UInt16,
+                options=[
+                    "INTERLEAVE=BAND",
+                    "COMPRESS=DEFLATE",
+                    f"PHOTOMETRIC={photometric}",
+                ],
+            )
             if outRaster is None:
-                raise IOError(f"Failed to create TIFF file at {outfilename}, Please check path, permissions and disk space.")
+                raise IOError(
+                    f"Failed to create TIFF file at {outfilename}, Please check path, permissions and disk space."
+                )
             outband = outRaster.GetRasterBand(1)
-            outdata = imageutils.normalize(aligned_cap[:, :, inband], multispec_min, multispec_max)
+            outdata = imageutils.normalize(
+                aligned_cap[:, :, inband], multispec_min, multispec_max
+            )
             outdata[outdata < 0] = 0
-            outdata[outdata > 2] = 2  # limit reflectance data to 200% to allow some specular reflections
+            outdata[outdata > 2] = (
+                2  # limit reflectance data to 200% to allow some specular reflections
+            )
             outdata = outdata * 32767  # scale reflectance images so 100% = 32768
             outdata[outdata < 0] = 0
             outdata[outdata > 65535] = 65535
@@ -700,9 +834,16 @@ class Capture(object):
                 pass
 
         return outfilenames
-    
-    def save_channels_as_separate_tiffs_with_no_normalization(self, output_directory, out_filename,
-            sort_by_wavelength=False, photometric='MINISBLACK',pansharpen=False, write_exif=True):
+
+    def save_channels_as_separate_tiffs_with_no_normalization(
+        self,
+        output_directory,
+        out_filename,
+        sort_by_wavelength=False,
+        photometric="MINISBLACK",
+        pansharpen=False,
+        write_exif=True,
+    ):
         """
         Output the Images in the Capture object as separate GTiff images for each channel.
         :param output_directory: str, the directory to save the TIFF files
@@ -713,11 +854,16 @@ class Capture(object):
         """
         from osgeo.gdal import GetDriverByName, GDT_UInt16
         from osgeo import gdal
+
         gdal.UseExceptions()
 
-        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+        if (
+            self.__aligned_capture is None
+            and self.__aligned_radiometric_pan_sharpened_capture is None
+        ):
             raise RuntimeError(
-                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs.")
+                "Call Capture.create_aligned_capture() prior to saving as separate TIFFs."
+            )
         band_names = self.band_names()
         if "Panchro" in band_names and pansharpen:
             aligned_cap = self.__aligned_radiometric_pan_sharpened_capture[0]
@@ -729,48 +875,67 @@ class Capture(object):
         rows, cols, _ = aligned_cap.shape
 
         if sort_by_wavelength:
-            eo_list = list(np.argsort(np.array(self.center_wavelengths())[self.eo_indices()]))
+            eo_list = list(
+                np.argsort(np.array(self.center_wavelengths())[self.eo_indices()])
+            )
             eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
         else:
             eo_list = self.eo_indices()
             eo_bands = list(np.array(self.eo_band_names())[np.array(eo_list)])
 
-        driver = GetDriverByName('GTiff')
+        driver = GetDriverByName("GTiff")
 
         tiff_paths = []
         for out_idx, inband in enumerate(eo_list):
             bandname = eo_bands[out_idx].replace(" ", "")
-            
+
             tif_path = os.path.join(
-                output_directory, f"{out_filename}_{out_idx}_{bandname}.tif")
+                output_directory, f"{out_filename}_{out_idx}_{bandname}.tif"
+            )
             tiff_paths.append(tif_path)
-            ds = driver.Create(tif_path, cols, rows, 1, GDT_UInt16,
-                            options=['INTERLEAVE=BAND',
-                                        'COMPRESS=DEFLATE',
-                                        f'PHOTOMETRIC={photometric}'])
+            ds = driver.Create(
+                tif_path,
+                cols,
+                rows,
+                1,
+                GDT_UInt16,
+                options=[
+                    "INTERLEAVE=BAND",
+                    "COMPRESS=DEFLATE",
+                    f"PHOTOMETRIC={photometric}",
+                ],
+            )
             if ds is None:
                 raise IOError(f"Cannot create {tif_path}")
-            
-            SCALE = 32768            # 100 % Reflexion → 32768 
 
-            
+            SCALE = 32768  # 100 % Reflexion → 32768
 
             band = ds.GetRasterBand(1)
             raw = aligned_cap[:, :, inband]
-            u16  = np.clip(raw * SCALE, 0, 65535).astype('uint16')
+            u16 = np.clip(raw * SCALE, 0, 65535).astype("uint16")
             band.WriteArray(u16)
             band.DeleteNoDataValue()
             band.SetDescription(eo_bands[out_idx])
-            band.FlushCache(); ds.FlushCache()
-            ds = None # close dataset
+            band.FlushCache()
+            ds.FlushCache()
+            ds = None  # close dataset
 
             if write_exif:
                 imageutils.write_exif_to_stack(self, tif_path)
 
-        return  tiff_paths
+        return tiff_paths
 
-    def save_capture_as_rgb(self, outfilename, gamma=1.4, downsample=1, white_balance='norm', hist_min_percent=0.5,
-                            hist_max_percent=99.5, sharpen=True, rgb_band_indices=None):
+    def save_capture_as_rgb(
+        self,
+        outfilename,
+        gamma=1.4,
+        downsample=1,
+        white_balance="norm",
+        hist_min_percent=0.5,
+        hist_max_percent=99.5,
+        sharpen=True,
+        rgb_band_indices=None,
+    ):
         """
         Output the Images in the Capture object as RGB.
         :param out_file_name: str system file path
@@ -785,31 +950,51 @@ class Capture(object):
         """
         if rgb_band_indices is None:
             rgb_band_indices = [2, 1, 0]
-        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+        if (
+            self.__aligned_capture is None
+            and self.__aligned_radiometric_pan_sharpened_capture is None
+        ):
             raise RuntimeError(
-                "Call Capture.create_aligned_capture or Capture.radiometric_pan_sharpened_aligned_capture prior to saving as RGB.")
+                "Call Capture.create_aligned_capture or Capture.radiometric_pan_sharpened_aligned_capture prior to saving as RGB."
+            )
         if self.__aligned_radiometric_pan_sharpened_capture:
             aligned_capture = self.__aligned_radiometric_pan_sharpened_capture[0]
         else:
             aligned_capture = self.__aligned_capture
-        im_display = np.zeros((aligned_capture.shape[0], aligned_capture.shape[1], aligned_capture.shape[2]),
-                              dtype=float)
+        im_display = np.zeros(
+            (
+                aligned_capture.shape[0],
+                aligned_capture.shape[1],
+                aligned_capture.shape[2],
+            ),
+            dtype=float,
+        )
 
-        im_min = np.percentile(aligned_capture[:, :, rgb_band_indices].flatten(),
-                               hist_min_percent)  # modify these percentiles to adjust contrast
-        im_max = np.percentile(aligned_capture[:, :, rgb_band_indices].flatten(),
-                               hist_max_percent)  # for many images, 0.5 and 99.5 are good values
+        im_min = np.percentile(
+            aligned_capture[:, :, rgb_band_indices].flatten(), hist_min_percent
+        )  # modify these percentiles to adjust contrast
+        im_max = np.percentile(
+            aligned_capture[:, :, rgb_band_indices].flatten(), hist_max_percent
+        )  # for many images, 0.5 and 99.5 are good values
 
         for i in rgb_band_indices:
             # for rgb true color, we usually want to use the same min and max scaling across the 3 bands to
             # maintain the "white balance" of the calibrated image
-            if white_balance == 'norm':
-                im_display[:, :, i] = imageutils.normalize(aligned_capture[:, :, i], im_min, im_max)
+            if white_balance == "norm":
+                im_display[:, :, i] = imageutils.normalize(
+                    aligned_capture[:, :, i], im_min, im_max
+                )
             else:
                 im_display[:, :, i] = imageutils.normalize(aligned_capture[:, :, i])
 
         rgb = im_display[:, :, rgb_band_indices]
-        rgb = cv2.resize(rgb, None, fx=1 / downsample, fy=1 / downsample, interpolation=cv2.INTER_AREA)
+        rgb = cv2.resize(
+            rgb,
+            None,
+            fx=1 / downsample,
+            fy=1 / downsample,
+            interpolation=cv2.INTER_AREA,
+        )
 
         if sharpen:
             gaussian_rgb = cv2.GaussianBlur(rgb, (9, 9), 10.0)
@@ -824,12 +1009,18 @@ class Capture(object):
         # Apply a gamma correction to make the render appear closer to what our eyes would see
         if gamma != 0:
             gamma_corr_rgb = unsharp_rgb ** (1.0 / gamma)
-            imageio.imwrite(outfilename, (255 * gamma_corr_rgb).astype('uint8'))
+            imageio.imwrite(outfilename, (255 * gamma_corr_rgb).astype("uint8"))
         else:
-            imageio.imwrite(outfilename, (255 * unsharp_rgb).astype('uint8'))
+            imageio.imwrite(outfilename, (255 * unsharp_rgb).astype("uint8"))
 
-    def save_thermal_over_rgb(self, outfilename, figsize=(30, 23), lw_index=None, hist_min_percent=0.2,
-                              hist_max_percent=99.8):
+    def save_thermal_over_rgb(
+        self,
+        outfilename,
+        figsize=(30, 23),
+        lw_index=None,
+        hist_min_percent=0.2,
+        hist_max_percent=99.8,
+    ):
         """
         Output the Images in the Capture object as thermal over RGB.
         :param out_file_name: str system file path.
@@ -838,10 +1029,14 @@ class Capture(object):
         :param hist_min_percent: float Minimum histogram percentile.
         :param hist_max_percent: float Maximum histogram percentile.
         """
-        if self.__aligned_capture is None and self.__aligned_radiometric_pan_sharpened_capture is None:
+        if (
+            self.__aligned_capture is None
+            and self.__aligned_radiometric_pan_sharpened_capture is None
+        ):
             raise RuntimeError(
                 "Call Capture.create_aligned_capture or Capture.radiometric_pan_sharpened_aligned_capture prior to "
-                "saving as RGB.")
+                "saving as RGB."
+            )
         if self.__aligned_radiometric_pan_sharpened_capture:
             aligned_capture = self.__aligned_radiometric_pan_sharpened_capture[0]
         else:
@@ -851,37 +1046,48 @@ class Capture(object):
             lw_index = self.lw_indices()[0]
         masked_thermal = aligned_capture[:, :, lw_index]
 
-        im_display = np.zeros((aligned_capture.shape[0], aligned_capture.shape[1], 3), dtype=float)
-        rgb_band_indices = [self.band_names_lower().index('red'),
-                            self.band_names_lower().index('green'),
-                            self.band_names_lower().index('blue')]
+        im_display = np.zeros(
+            (aligned_capture.shape[0], aligned_capture.shape[1], 3), dtype=float
+        )
+        rgb_band_indices = [
+            self.band_names_lower().index("red"),
+            self.band_names_lower().index("green"),
+            self.band_names_lower().index("blue"),
+        ]
 
         # for rgb true color, we usually want to use the same min and max scaling across the 3 bands to
         # maintain the "white balance" of the calibrated image
-        im_min = np.percentile(aligned_capture[:, :, rgb_band_indices].flatten(),
-                               hist_min_percent)  # modify these percentiles to adjust contrast
-        im_max = np.percentile(aligned_capture[:, :, rgb_band_indices].flatten(),
-                               hist_max_percent)  # for many images, 0.5 and 99.5 are good values
+        im_min = np.percentile(
+            aligned_capture[:, :, rgb_band_indices].flatten(), hist_min_percent
+        )  # modify these percentiles to adjust contrast
+        im_max = np.percentile(
+            aligned_capture[:, :, rgb_band_indices].flatten(), hist_max_percent
+        )  # for many images, 0.5 and 99.5 are good values
         for dst_band, src_band in enumerate(rgb_band_indices):
-            im_display[:, :, dst_band] = imageutils.normalize(aligned_capture[:, :, src_band], im_min, im_max)
+            im_display[:, :, dst_band] = imageutils.normalize(
+                aligned_capture[:, :, src_band], im_min, im_max
+            )
 
         # Compute a histogram
         min_display_therm = np.percentile(masked_thermal, hist_min_percent)
         max_display_therm = np.percentile(masked_thermal, hist_max_percent)
 
-        fig, _ = plotutils.plot_overlay_withcolorbar(im_display,
-                                                     masked_thermal,
-                                                     figsize=figsize,
-                                                     title='Temperature over True Color',
-                                                     vmin=min_display_therm, vmax=max_display_therm,
-                                                     overlay_alpha=0.25,
-                                                     overlay_colormap='jet',
-                                                     overlay_steps=16,
-                                                     display_contours=True,
-                                                     contour_steps=16,
-                                                     contour_alpha=.4,
-                                                     contour_fmt="%.0fC",
-                                                     show=False)
+        fig, _ = plotutils.plot_overlay_withcolorbar(
+            im_display,
+            masked_thermal,
+            figsize=figsize,
+            title="Temperature over True Color",
+            vmin=min_display_therm,
+            vmax=max_display_therm,
+            overlay_alpha=0.25,
+            overlay_colormap="jet",
+            overlay_steps=16,
+            display_contours=True,
+            contour_steps=16,
+            contour_alpha=0.4,
+            contour_fmt="%.0fC",
+            show=False,
+        )
         fig.savefig(outfilename)
 
     def output(stack, gamma, channel_order=None):
@@ -890,26 +1096,36 @@ class Capture(object):
         out = stack[:, :, channel_order]
         out -= out.min()
         out /= out.max()
-        out = out ** gamma
+        out = out**gamma
         scale = out.max()
         return out / scale
 
     @staticmethod
     def find_inliers(kp_image, kp_ref, matches, *, random_seed: int = 9):
-        model, inliers = ransac((kp_image[matches[:, 0]],
-                                 kp_ref[matches[:, 1]]),
-                                FundamentalMatrixTransform, min_samples=8,
-                                residual_threshold=.25, max_trials=5000,
-                                rng=random_seed)
+        model, inliers = ransac(
+            (kp_image[matches[:, 0]], kp_ref[matches[:, 1]]),
+            FundamentalMatrixTransform,
+            min_samples=8,
+            residual_threshold=0.25,
+            max_trials=5000,
+            rng=random_seed,
+        )
         inlier_keypoints_image = kp_image[matches[inliers, 0]]
         inlier_keypoints_ref = kp_ref[matches[inliers, 1]]
         n = len(inlier_keypoints_ref)
-        return inlier_keypoints_image, inlier_keypoints_ref, np.array([np.arange(n), np.arange(n)]).T, model
+        return (
+            inlier_keypoints_image,
+            inlier_keypoints_ref,
+            np.array([np.arange(n), np.arange(n)]).T,
+            model,
+        )
 
-    KeyPoints = namedtuple('KeyPoints', ['kpi', 'kpr', 'match', 'err'])
+    KeyPoints = namedtuple("KeyPoints", ["kpi", "kpr", "match", "err"])
 
     @staticmethod
-    def filter_keypoints(kp_image, kp_ref, match, w, scale, scale_i, threshold: float = 1.0) -> KeyPoints:
+    def filter_keypoints(
+        kp_image, kp_ref, match, w, scale, scale_i, threshold: float = 1.0
+    ) -> KeyPoints:
         err = []
         P0 = ProjectiveTransform(matrix=w)
         new_kpi = []
@@ -920,7 +1136,7 @@ class Capture(object):
             # unfortunately the coordinates between skimage and our images are reversed
             a = (kp_ref[m[1]] * scale)[::-1]
             b = (kp_image[m[0]] * scale_i)[::-1]
-            e = (np.linalg.norm(P0(a) - b))  # error in pixels
+            e = np.linalg.norm(P0(a) - b)  # error in pixels
             if e < threshold:
                 new_kpi.append(kp_image[m[0]])
                 new_kpr.append(kp_ref[m[1]])
@@ -929,8 +1145,15 @@ class Capture(object):
             err.append(e)
         return np.array(new_kpi), np.array(new_kpr), np.array(new_match), np.array(err)
 
-    def SIFT_align_capture(self, ref=5, min_matches=10, verbose=0, err_red=10.0, err_blue=12.0,
-                           err_LWIR=12.):
+    def SIFT_align_capture(
+        self,
+        ref=5,
+        min_matches=10,
+        verbose=0,
+        err_red=10.0,
+        err_blue=12.0,
+        err_LWIR=12.0,
+    ):
         descriptor_extractor = SIFT()
         keypoints = []
         descriptors = []
@@ -944,16 +1167,18 @@ class Capture(object):
         warp_matrices_calibrated = self.get_warp_matrices(ref_index=ref)
 
         if not rest_shape == ref_shape:
-            ref_image_SIFT = resize(self.images[ref].undistorted(
-                self.images[ref].raw()), rest_shape)
-            ref_image_SIFT = (ref_image_SIFT / ref_image_SIFT.max()
-                              * 65535).astype(np.uint16)
+            ref_image_SIFT = resize(
+                self.images[ref].undistorted(self.images[ref].raw()), rest_shape
+            )
+            ref_image_SIFT = (ref_image_SIFT / ref_image_SIFT.max() * 65535).astype(
+                np.uint16
+            )
 
         descriptor_extractor.detect_and_extract(ref_image_SIFT)
         keypoints_ref = descriptor_extractor.keypoints
         descriptor_ref = descriptor_extractor.descriptors
         if verbose > 1:
-            logger.info('found %d keypoints in the reference image', len(keypoints_ref))
+            logger.info("found %d keypoints in the reference image", len(keypoints_ref))
         match_images = []
         ratio = []
         filter_tr = []
@@ -983,10 +1208,16 @@ class Capture(object):
             descriptors.append(descriptor_extractor.descriptors)
         if verbose > 1:
             for k, ix in zip(keypoints, img_index):
-                logger.info('found %d keypoints for band %s in the remainig stack', len(k), self.images[ix].band_name)
+                logger.info(
+                    "found %d keypoints for band %s in the remainig stack",
+                    len(k),
+                    self.images[ix].band_name,
+                )
 
-        matches = [match_descriptors(d, descriptor_ref, max_ratio=r)
-                   for d, r in zip(descriptors, ratio)]
+        matches = [
+            match_descriptors(d, descriptor_ref, max_ratio=r)
+            for d, r in zip(descriptors, ratio)
+        ]
 
         # do we have dual camera capture?
         if len(img_index) > 9:
@@ -1000,13 +1231,20 @@ class Capture(object):
             # we don't know the rig relatives between iBlueREF and ref
             # so we have to rely on SIFT to find the correct transform
             kpi, kpr, imatch, model = self.find_inliers(
-                keypoints[posBLUE], keypoints_ref, matches[posBLUE])
+                keypoints[posBLUE], keypoints_ref, matches[posBLUE]
+            )
             # we trust this match to work
             if len(kpi) < min_matches:
-                logger.error('we have just {:d} matching keypoints -the match of BLUE camera to RED failed!!'.format(len(kpi)))
+                logger.error(
+                    "we have just {:d} matching keypoints -the match of BLUE camera to RED failed!!".format(
+                        len(kpi)
+                    )
+                )
             # if it worked, scale it and get the transform
             scale_i = np.array(self.images[iBlueREF].raw().shape) / np.array(rest_shape)
-            P = estimate_transform('projective', (scale * kpr)[:, ::-1], (scale_i * kpi)[:, ::-1])
+            P = estimate_transform(
+                "projective", (scale * kpr)[:, ::-1], (scale_i * kpi)[:, ::-1]
+            )
             warp_blue_ref = P.params
             # now modify the BLUE warp matrices
             for ix in img_index_Blue:
@@ -1019,28 +1257,33 @@ class Capture(object):
             # we need to down scale the thermal image for the proper transform
             scale_i = np.array(self.images[ix].raw().shape) / np.array(rest_shape)
 
-            filtered_kpi, filtered_kpr, filtered_match, err = self.filter_keypoints(k,
-                                                                                    keypoints_ref,
-                                                                                    m,
-                                                                                    warp_matrices_calibrated[ix],
-                                                                                    scale,
-                                                                                    scale_i,
-                                                                                    threshold=t)
+            filtered_kpi, filtered_kpr, filtered_match, err = self.filter_keypoints(
+                k,
+                keypoints_ref,
+                m,
+                warp_matrices_calibrated[ix],
+                scale,
+                scale_i,
+                threshold=t,
+            )
             if verbose > 0:
-                logger.info('found %d matching keypoints for index %d', len(filtered_match), ix)
+                logger.info(
+                    "found %d matching keypoints for index %d", len(filtered_match), ix
+                )
             # if we have enough SIFT matches that actually correspond, compute a model
             if len(filtered_match) > min_matches:
-                kpi, kpr, imatch, model = self.find_inliers(filtered_kpi,
-                                                            filtered_kpr,
-                                                            filtered_match)
+                kpi, kpr, imatch, model = self.find_inliers(
+                    filtered_kpi, filtered_kpr, filtered_match
+                )
 
                 P = estimate_transform(
-                    'projective', (scale * kpr)[:, ::-1], (scale_i * kpi)[:, ::-1])
+                    "projective", (scale * kpr)[:, ::-1], (scale_i * kpi)[:, ::-1]
+                )
             # otherwise, use the calibrated matrix
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                raise Exception(f'no match for index {ix}')
+                raise Exception(f"no match for index {ix}")
             models.append(P)
             kp_image.append(kpi)
             kp_ref.append(kpr)
@@ -1059,12 +1302,14 @@ class Capture(object):
     def adjust_transform(self, ref_index):
         warp_matrices = self.get_warp_matrices(ref_index=ref_index)
         t_matrices = []
-        CR = self.images[ref_index].cv2_camera_matrix()
+        self.images[ref_index].cv2_camera_matrix()
         for i in self.images:
             z = i.location[2] * 1e3
             C = i.cv2_camera_matrix()
 
-            T = (np.array(i.rig_translations) - np.array(self.images[ref_index].rig_translations))
+            T = np.array(i.rig_translations) - np.array(
+                self.images[ref_index].rig_translations
+            )
             tm = np.eye(3)
             tm[0, 2] = C[0, 0] * T[0] / z
             tm[1, 2] = C[1, 1] * T[1] / z

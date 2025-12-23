@@ -4980,7 +4980,7 @@ form{
   .bp3-running-text table th, table.bp3-html-table th{
     color:#182026;
     font-weight:600; }
-  
+
   .bp3-running-text table td,
   table.bp3-html-table td{
     color:#182026; }
@@ -14559,12 +14559,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
                 },
                 displayAlign: 'center',
                 CommonHTML: {
-                    linebreaks: { 
-                    automatic: true 
+                    linebreaks: {
+                    automatic: true
                     }
                 }
             });
-        
+
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }
     }
@@ -14640,7 +14640,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14654,7 +14654,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14708,7 +14708,7 @@ Wall time: 304 ms
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14754,7 +14754,7 @@ Wall time: 304 ms
 <span class="n">data</span> <span class="o">=</span> <span class="n">df_to_geojson</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">columns</span><span class="p">[</span><span class="mi">3</span><span class="p">:],</span><span class="n">lat</span><span class="o">=</span><span class="s1">&#39;latitude&#39;</span><span class="p">,</span><span class="n">lon</span><span class="o">=</span><span class="s1">&#39;longitude&#39;</span><span class="p">)</span>
 <span class="n">viz</span> <span class="o">=</span> <span class="n">CircleViz</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">color_property</span><span class="o">=</span><span class="s1">&#39;dls-yaw&#39;</span><span class="p">,</span>
                 <span class="n">color_stops</span><span class="o">=</span><span class="n">color_stops</span><span class="p">,</span>
-                <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()],</span> 
+                <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()],</span>
                 <span class="n">zoom</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">,</span>
                 <span class="n">style</span><span class="o">=</span><span class="s1">&#39;mapbox://styles/mapbox/satellite-streets-v9&#39;</span><span class="p">)</span>
 <span class="n">viz</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -14774,7 +14774,7 @@ Wall time: 304 ms
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14787,7 +14787,7 @@ Wall time: 304 ms
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14803,7 +14803,7 @@ Wall time: 304 ms
 <script type='text/javascript'
         src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
 <link type='text/css'
-      href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' 
+      href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css'
       rel='stylesheet' />
 
 <style type='text/css'>
@@ -14872,8 +14872,8 @@ Wall time: 304 ms
     .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item {width: 30px; min-height: 20px;}
 
     /* scale annotation */
-    .mapboxgl-ctrl.mapboxgl-ctrl-scale { border-color: #6e6e6e; 
-                                         background-color: white; 
+    .mapboxgl-ctrl.mapboxgl-ctrl-scale { border-color: #6e6e6e;
+                                         background-color: white;
                                          color: #131516; }
 </style>
 
@@ -14943,7 +14943,7 @@ function calcColorLegend(myColorStops, title) {
             item.appendChild(key);
             item.appendChild(value);
             legendContent.appendChild(item);
-            
+
             data = document.getElementById('legend-color-points-value-' + p)
             // round number values in legend if precision defined
             if ((typeof(myColorStops[p][0]) == 'number') && (typeof(null) == 'number')) {
@@ -15039,7 +15039,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
             var key = document.createElement('span');
             key.className = 'legend-key circle';
             key.id = 'legend-radius-points-id-' + p;
-            key.style.backgroundColor = color;   
+            key.style.backgroundColor = color;
 
             key.style.width = '' + myRadiusStops[p][1] * 2 + 'px';
             key.style.height = '' + myRadiusStops[p][1] * 2 + 'px';
@@ -15055,7 +15055,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
             item.appendChild(key);
             item.appendChild(value);
             legendContent.appendChild(item);
-            
+
             data = document.getElementById('legend-radius-points-value-' + p)
 
             // round number values in legend if precision defined
@@ -15089,7 +15089,7 @@ function updateAttribMargin(legend) {
 
     // default margin is based on calculated legend width
     var attribMargin = legend.offsetWidth + 15;
-    
+
     // if horizontal legend layout (multiple legends are stacked vertically)
     if ('vertical' === 'horizontal') {
         document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin).toString() + 'px';
@@ -15148,7 +15148,7 @@ function generateMatchExpression(propertyValue, stops, defaultValue) {
         expression.push(stops[i][0], stops[i][1])
     }
     expression.push(defaultValue)
-    
+
     return expression
 }
 
@@ -15178,7 +15178,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     var transformRequest = function(url, resourceType) {
         const isMapboxRequest = url.slice(8, 22) === 'api.mapbox.com' ||
           url.slice(10, 26) === 'tiles.mapbox.com';
-      
+
         return {
           url: isMapboxRequest ? url.replace('?', '?pluginName=PythonMapboxgl&') : url
         }
@@ -15200,39 +15200,39 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
         transformRequest: transformRequest
     });
 
-    
-    
+
+
         map.addControl(new mapboxgl.AttributionControl({ compact: true }));
 
-    
 
-    
+
+
 
         map.addControl(new mapboxgl.NavigationControl());
 
-    
 
-    
 
-    
-        
+
+
+
+
             calcColorLegend([[-3.141592653589793, 'rgb(255,255,204)'], [-2.243994752564138, 'rgb(255,237,160)'], [-1.3463968515384828, 'rgb(254,217,118)'], [-0.4487989505128276, 'rgb(254,178,76)'], [0.4487989505128276, 'rgb(253,141,60)'], [1.3463968515384828, 'rgb(252,78,42)'], [2.243994752564138, 'rgb(227,26,28)'], [3.141592653589793, 'rgb(177,0,38)']] , 'dls-yaw');
-        
-    
-        
 
 
-    
-        
-        
 
-    
 
-    
+
+
+
+
+
+
+
+
 
     map.on('style.load', function() {
-        
-        
+
+
 
         map.addSource('data', {
             'type': 'geojson',
@@ -15249,7 +15249,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             'maxzoom': 24,
             'minzoom': 0,
             'layout': {
-                
+
                 'text-size' : generateInterpolateExpression('zoom', [[0, 8],[22, 3* 8]] ),
                 'text-offset': [0,-1]
             },
@@ -15257,12 +15257,12 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
                 'text-halo-color': 'white',
                 'text-halo-width': generatePropertyExpression('interpolate', 'zoom', [[0,1], [18,5* 1]]),
                 'text-color': ['case',
-                    ['boolean', ['feature-state', 'hover'], false], 
-                    'black', 
+                    ['boolean', ['feature-state', 'hover'], false],
+                    'black',
                     '#131516']
             }
         }, '' )
-        
+
         map.addLayer({
             'id': 'circle',
             'source': 'data',
@@ -15270,44 +15270,44 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             'maxzoom': 24,
             'minzoom': 0,
             'paint': {
-                
+
                     'circle-color': ['case',
-                        ['boolean', ['feature-state', 'hover'], false], 
+                        ['boolean', ['feature-state', 'hover'], false],
                         'black',
                         generatePropertyExpression('interpolate', 'dls-yaw', [[-3.141592653589793, 'rgb(255,255,204)'], [-2.243994752564138, 'rgb(255,237,160)'], [-1.3463968515384828, 'rgb(254,217,118)'], [-0.4487989505128276, 'rgb(254,178,76)'], [0.4487989505128276, 'rgb(253,141,60)'], [1.3463968515384828, 'rgb(252,78,42)'], [2.243994752564138, 'rgb(227,26,28)'], [3.141592653589793, 'rgb(177,0,38)']], 'grey' )],
-                    
+
                 'circle-radius' : generatePropertyExpression('interpolate', 'zoom', [[0,1], [22,10 * 1]]),
                 'circle-stroke-color': ['case',
-                    ['boolean', ['feature-state', 'hover'], false], 
-                    'black', 
+                    ['boolean', ['feature-state', 'hover'], false],
+                    'black',
                     'grey'],
                 'circle-stroke-width': generatePropertyExpression('interpolate', 'zoom', [[0,0.1], [18,5* 0.1]]),
                 'circle-opacity' : 1,
                 'circle-stroke-opacity' : 1
             }
         }, 'label');
-        
-        
+
+
 
         // Popups
-        
+
             var popupAction = 'mousemove',
                 popupSettings =  {
                     closeButton: false,
                     closeOnClick: false
                 };
-        
+
 
         // Create a popup
         var popup = new mapboxgl.Popup(popupSettings);
 
-        
+
 
         var hoveredStateId = 0;
-        
+
         // Show the popup on mouseover
         map.on(popupAction, function(e) {
-            
+
             var features = map.queryRenderedFeatures(e.point, {layers: ['circle', 'label'] });
 
             if (features.length > 0) {
@@ -15319,7 +15319,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
                     hoveredStateId = newHoveredStateId;
                 }
                 map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
-                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) +
                     ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
                 for (key in f.properties) {
@@ -15338,8 +15338,8 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             }
         });
 
-        
-        
+
+
         // Fly to on click
         map.on('click', 'circle', function(e) {
             map.easeTo({
@@ -15405,7 +15405,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15469,7 +15469,7 @@ jp-needs-light-background
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15526,7 +15526,7 @@ jp-needs-light-background
         <span class="n">panel_timestamps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">utc_time</span><span class="p">())</span>
         <span class="n">panel_radiances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">panel_radiance</span><span class="p">())</span>
         <span class="n">dls_irradiances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">dls_irradiance</span><span class="p">())</span>
-        
+
 <span class="n">dls_irradiances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dls_irradiances</span><span class="p">)</span>
 <span class="n">panel_radiances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">panel_radiances</span><span class="p">)</span>
 
@@ -15586,7 +15586,7 @@ jp-needs-light-background
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 

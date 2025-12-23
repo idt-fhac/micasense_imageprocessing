@@ -35,23 +35,23 @@ import micasense.metadata as metadata
 
 @pytest.fixture()
 def rededge_files_dir():
-    return Path(__file__).parent.parent / 'data' / 'REDEDGE-MX'
+    return Path(__file__).parent.parent / "data" / "REDEDGE-MX"
 
 
 @pytest.fixture()
 def panel_rededge_file_list(rededge_files_dir: Path):
-    return glob.glob(str(rededge_files_dir / 'IMG_0001_*.tif'))
+    return glob.glob(str(rededge_files_dir / "IMG_0001_*.tif"))
 
 
 @pytest.fixture()
 def non_panel_rededge_file_list(rededge_files_dir: Path):
-    return glob.glob(str(rededge_files_dir / 'IMG_0020_*.tif'))
+    return glob.glob(str(rededge_files_dir / "IMG_0020_*.tif"))
 
 
 @pytest.fixture()
 def bad_file_list(rededge_files_dir: Path):
-    file1 = str(rededge_files_dir / 'IMG_0020_1.tif')
-    file2 = str(rededge_files_dir / 'IMG_0001_1.tif')
+    file1 = str(rededge_files_dir / "IMG_0020_1.tif")
+    file2 = str(rededge_files_dir / "IMG_0001_1.tif")
     return [file1, file2]
 
 
@@ -67,27 +67,27 @@ def non_panel_rededge_capture(non_panel_rededge_file_list):
 
 @pytest.fixture()
 def img(rededge_files_dir: Path):
-    return image.Image(str(rededge_files_dir / 'IMG_0001_1.tif'))
+    return image.Image(str(rededge_files_dir / "IMG_0001_1.tif"))
 
 
 @pytest.fixture()
 def img2(rededge_files_dir: Path):
-    return image.Image(str(rededge_files_dir / 'IMG_0001_2.tif'))
+    return image.Image(str(rededge_files_dir / "IMG_0001_2.tif"))
 
 
 @pytest.fixture()
 def ten_band_files_dir():
-    return Path(__file__).parent.parent / 'data' / 'REDEDGE-MX-DUAL'
+    return Path(__file__).parent.parent / "data" / "REDEDGE-MX-DUAL"
 
 
 @pytest.fixture()
 def panel_10band_rededge_file_list(ten_band_files_dir: Path):
-    return glob.glob(str(ten_band_files_dir / 'IMG_0000_*.tif'))
+    return glob.glob(str(ten_band_files_dir / "IMG_0000_*.tif"))
 
 
 @pytest.fixture()
 def flight_10band_rededge_file_list(ten_band_files_dir: Path):
-    return glob.glob(str(ten_band_files_dir / 'IMG_0431_*.tif'))
+    return glob.glob(str(ten_band_files_dir / "IMG_0431_*.tif"))
 
 
 @pytest.fixture()
@@ -102,64 +102,66 @@ def flight_10band_rededge_capture(flight_10band_rededge_file_list):
 
 @pytest.fixture()
 def panel_image_name(rededge_files_dir: Path):
-    return str(rededge_files_dir / 'IMG_0001_1.tif')
+    return str(rededge_files_dir / "IMG_0001_1.tif")
 
 
 @pytest.fixture()
 def panel_image_name_red(rededge_files_dir: Path):
-    return str(rededge_files_dir / 'IMG_0001_2.tif')
+    return str(rededge_files_dir / "IMG_0001_2.tif")
 
 
 @pytest.fixture()
 def flight_image_name(rededge_files_dir: Path):
-    return str(rededge_files_dir / 'IMG_0020_1.tif')
+    return str(rededge_files_dir / "IMG_0020_1.tif")
 
 
 @pytest.fixture()
 def altum_files_dir():
-    return Path(__file__).parent.parent / 'data' / 'ALTUM'
+    path = Path(__file__).parent.parent / "data" / "ALTUM"
+    assert path.is_dir()
+    return path
 
 
 @pytest.fixture()
 def panel_altum_file_list(altum_files_dir):
-    return glob.glob(str(altum_files_dir / 'IMG_0000_*.tif'))
+    return glob.glob(str(altum_files_dir / "IMG_0000_*.tif"))
 
 
 @pytest.fixture()
 def panel_altum_capture(panel_altum_file_list):
-    imgs = [image.Image(fle) for fle in panel_altum_file_list]
+    imgs = [image.Image(file) for file in panel_altum_file_list]
     return capture.Capture(imgs)
 
 
 @pytest.fixture()
 def non_panel_altum_file_list(altum_files_dir: Path):
-    return glob.glob(str(altum_files_dir / 'IMG_0021_*.tif'))
+    return glob.glob(str(altum_files_dir / "IMG_0021_*.tif"))
 
 
 @pytest.fixture()
 def non_panel_altum_capture(non_panel_altum_file_list):
-    imgs = [image.Image(fle) for fle in non_panel_altum_file_list]
+    imgs = [image.Image(file) for file in non_panel_altum_file_list]
     return capture.Capture(imgs)
 
 
 @pytest.fixture()
 def altum_panel_image_name(altum_files_dir: Path):
-    return str(altum_files_dir / 'IMG_0000_1.tif')
+    return str(altum_files_dir / "IMG_0000_1.tif")
 
 
 @pytest.fixture()
 def altum_lwir_image_name(altum_files_dir: Path):
-    return str(altum_files_dir / 'IMG_0000_6.tif')
+    return str(altum_files_dir / "IMG_0000_6.tif")
 
 
 @pytest.fixture()
 def altum_flight_image_name(altum_files_dir: Path):
-    return str(altum_files_dir / 'IMG_0021_1.tif')
+    return str(altum_files_dir / "IMG_0021_1.tif")
 
 
 @pytest.fixture()
 def panel_altum_file_name(altum_files_dir):
-    return str(altum_files_dir / 'IMG_0000_1.tif')
+    return str(altum_files_dir / "IMG_0000_1.tif")
 
 
 @pytest.fixture()
@@ -174,22 +176,22 @@ def altum_flight_image(altum_flight_image_name):
 
 @pytest.fixture()
 def non_existant_file_name(altum_files_dir: Path):
-    return str(altum_files_dir / 'NOFILE.tif')
+    return str(altum_files_dir / "NOFILE.tif")
 
 
 @pytest.fixture()
 def altum_lwir_image(altum_files_dir: Path):
-    return image.Image(str(altum_files_dir / 'IMG_0000_6.tif'))
+    return image.Image(str(altum_files_dir / "IMG_0000_6.tif"))
 
 
 @pytest.fixture()
 def meta(rededge_files_dir: Path):
-    return metadata.Metadata(str(rededge_files_dir / 'IMG_0001_1.tif'))
+    return metadata.Metadata(str(rededge_files_dir / "IMG_0001_1.tif"))
 
 
 @pytest.fixture()
 def meta_bad_exposure(rededge_files_dir: Path):
-    return metadata.Metadata(str(rededge_files_dir / 'IMG_0020_1.tif'))
+    return metadata.Metadata(str(rededge_files_dir / "IMG_0020_1.tif"))
 
 
 @pytest.fixture()

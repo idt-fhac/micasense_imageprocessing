@@ -35,19 +35,19 @@ def test_band_index(meta):
 
 
 def test_camera_make(meta):
-    assert meta.camera_make() == 'MicaSense'
+    assert meta.camera_make() == "MicaSense"
 
 
 def test_camera_model(meta):
-    assert meta.camera_model() == 'RedEdge-M'
+    assert meta.camera_model() == "RedEdge-M"
 
 
 def test_flight_id(meta):
-    assert meta.flight_id() == 'ePdxBBmSitgkTdpwZiM9'
+    assert meta.flight_id() == "ePdxBBmSitgkTdpwZiM9"
 
 
 def test_capture_id(meta):
-    assert meta.capture_id() == 'Rb0pibHa08uHJwrTjf8Y'
+    assert meta.capture_id() == "Rb0pibHa08uHJwrTjf8Y"
 
 
 def test_black_level(meta):
@@ -59,13 +59,15 @@ def test_focal_length_mm(meta):
 
 
 def test_fp_resolution(meta):
-    assert meta.focal_plane_resolution_px_per_mm() == pytest.approx([266.666667, 266.666667])
+    assert meta.focal_plane_resolution_px_per_mm() == pytest.approx(
+        [266.666667, 266.666667]
+    )
 
 
 def test_utc_time(meta):
     utc_time = meta.utc_time()
     assert utc_time is not None
-    assert utc_time.strftime('%Y-%m-%d %H:%M:%S.%f') == '2022-04-06 18:50:25.983430'
+    assert utc_time.strftime("%Y-%m-%d %H:%M:%S.%f") == "2022-04-06 18:50:25.983430"
 
 
 def test_position(meta):
@@ -73,11 +75,11 @@ def test_position(meta):
 
 
 def test_dls_present(meta):
-    assert meta.dls_present() == True
+    assert meta.dls_present()
 
 
 def test_metadata_size(meta):
-    assert meta.size('XMP:RadiometricCalibration') == 3
+    assert meta.size("XMP:RadiometricCalibration") == 3
 
 
 def test_center_wavelength(meta):
@@ -89,8 +91,14 @@ def test_vignette_center(meta):
 
 
 def test_vignette_polynomial(meta):
-    expected_poly = [1.001285e-06, 5.61421e-07, -5.962064e-09, 1.862037e-11, -1.4703936738578638e-14,
-                     7.334097230810222e-18]
+    expected_poly = [
+        1.001285e-06,
+        5.61421e-07,
+        -5.962064e-09,
+        1.862037e-11,
+        -1.4703936738578638e-14,
+        7.334097230810222e-18,
+    ]
     assert meta.vignette_polynomial() == pytest.approx(expected_poly, rel=0.001)
 
 
@@ -124,8 +132,9 @@ def test_dls_irradiance(meta):
 
 
 def test_dls_pose(meta):
-    assert meta.dls_pose() == pytest.approx((-2.0091497634122724, 0.018554597483870183, 0.031269217556393974),
-                                            abs=0.001)
+    assert meta.dls_pose() == pytest.approx(
+        (-2.0091497634122724, 0.018554597483870183, 0.031269217556393974), abs=0.001
+    )
 
 
 def test_good_exposure(meta):
@@ -137,7 +146,7 @@ def test_bad_exposure_time(meta_bad_exposure):
 
 
 def test_dls_present_dls2(meta_altum_dls2):
-    assert meta_altum_dls2.dls_present() == True
+    assert meta_altum_dls2.dls_present()
 
 
 def test_dls2_scale_factor(meta_altum_dls2):
@@ -145,4 +154,4 @@ def test_dls2_scale_factor(meta_altum_dls2):
 
 
 def test_horizontal_irradiance_valid_altum(meta_altum_dls2):
-    assert meta_altum_dls2.horizontal_irradiance_valid() == True
+    assert meta_altum_dls2.horizontal_irradiance_valid()

@@ -38,7 +38,7 @@ def test_panel_corners(panel_image_name):
     good_pts = [(672, 676), (673, 753), (753, 751), (752, 674)]
     assert panel_pts is not None
     assert len(panel_pts) == len(good_pts)
-    assert pan.serial == 'RP06-2051037-OB'
+    assert pan.serial == "RP06-2051037-OB"
     # the particular order of the points is not relevant
     # so sort by coordinates
     panel_pts = sorted(panel_pts, key=operator.itemgetter(0, 1))
@@ -52,7 +52,9 @@ def test_panel_corners(panel_image_name):
 # test manually providing bad corners - in this case the corners of the qr code itself
 def test_raw_panel_bad_corners(panel_image_name):
     img = image.Image(panel_image_name)
-    pan = panel.Panel(img, panel_corners=[[460, 599], [583, 599], [584, 478], [462, 477]])
+    pan = panel.Panel(
+        img, panel_corners=[[460, 599], [583, 599], [584, 478], [462, 477]]
+    )
     mean, std, num, sat = pan.raw()
     assert mean == pytest.approx(10111, rel=0.01)
     assert std == pytest.approx(7207.0, rel=0.05)
@@ -63,7 +65,9 @@ def test_raw_panel_bad_corners(panel_image_name):
 # test manually providing good corners
 def test_raw_panel_manual(panel_image_name):
     img = image.Image(panel_image_name)
-    pan = panel.Panel(img, panel_corners=[[809, 613], [648, 615], [646, 454], [808, 452]])
+    pan = panel.Panel(
+        img, panel_corners=[[809, 613], [648, 615], [646, 454], [808, 452]]
+    )
     mean, std, num, sat = pan.raw()
     assert mean == pytest.approx(24066, rel=0.01)
     assert std == pytest.approx(14266.0, rel=0.05)
@@ -74,7 +78,9 @@ def test_raw_panel_manual(panel_image_name):
 # test saturated pixels with modified panel picture
 def test_raw_panel_saturatedl(panel_image_name):
     img = image.Image(panel_image_name)
-    pan = panel.Panel(img, panel_corners=[[809, 613], [648, 615], [646, 454], [808, 452]])
+    pan = panel.Panel(
+        img, panel_corners=[[809, 613], [648, 615], [646, 454], [808, 452]]
+    )
 
     # saturate 2500 pixels in the raw image - note that on the undistorted image this
     # will result in 2329 saturated pixels
@@ -130,24 +136,24 @@ def test_irradiance_mean(panel_image_name):
 def test_panel_detected(panel_image_name):
     img = image.Image(panel_image_name)
     pan = panel.Panel(img)
-    assert pan.panel_detected() == True
+    assert pan.panel_detected()
 
 
 def test_panel_not_detected(flight_image_name):
     img = image.Image(flight_image_name)
     pan = panel.Panel(img)
-    assert pan.panel_detected() == False
+    assert not pan.panel_detected()
 
 
 def test_altum_panel(altum_panel_image_name):
     img = image.Image(altum_panel_image_name)
-    assert img.auto_calibration_image == True
+    assert img.auto_calibration_image
     pan = panel.Panel(img)
     panel_pts = pan.panel_corners()
     good_pts = [[1199, 676], [1191, 798], [1315, 804], [1323, 682]]
     assert panel_pts is not None
     assert len(panel_pts) == len(good_pts)
-    assert pan.serial == 'RP06-2051037-OB'
+    assert pan.serial == "RP06-2051037-OB"
 
     # the particular order of the points is not relevant
     # so sort by coordinates
@@ -158,14 +164,14 @@ def test_altum_panel(altum_panel_image_name):
         # different opencv/zbar versions round differently it seems
         assert pt[0] == pytest.approx(good_pts[i][0], abs=3)
         assert pt[1] == pytest.approx(good_pts[i][1], abs=3)
-    assert pan.qr_corners() == None
+    assert pan.qr_corners() is None
 
 
 def test_altum_lwir(altum_lwir_image_name):
     img = image.Image(altum_lwir_image_name)
-    assert img.auto_calibration_image == False
+    assert not img.auto_calibration_image
     pan = panel.Panel(img)
-    assert pan.panel_detected() == False
+    assert not pan.panel_detected()
 
 
 # def test_ordered_coordinates(panel_image_name):

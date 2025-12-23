@@ -4980,7 +4980,7 @@ form{
   .bp3-running-text table th, table.bp3-html-table th{
     color:#182026;
     font-weight:600; }
-  
+
   .bp3-running-text table td,
   table.bp3-html-table td{
     color:#182026; }
@@ -14559,12 +14559,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
                 },
                 displayAlign: 'center',
                 CommonHTML: {
-                    linebreaks: { 
-                    automatic: true 
+                    linebreaks: {
+                    automatic: true
                     }
                 }
             });
-        
+
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }
     }
@@ -14611,7 +14611,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14689,8 +14689,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
         <span class="n">panel_reflectance_by_band</span> <span class="o">=</span> <span class="n">panelCap</span><span class="o">.</span><span class="n">panel_albedo</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">panel_reflectance_by_band</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">]</span> <span class="c1">#RedEdge band_index order</span>
-    
-    <span class="n">panel_irradiance</span> <span class="o">=</span> <span class="n">panelCap</span><span class="o">.</span><span class="n">panel_irradiance</span><span class="p">(</span><span class="n">panel_reflectance_by_band</span><span class="p">)</span>    
+
+    <span class="n">panel_irradiance</span> <span class="o">=</span> <span class="n">panelCap</span><span class="o">.</span><span class="n">panel_irradiance</span><span class="p">(</span><span class="n">panel_reflectance_by_band</span><span class="p">)</span>
     <span class="n">img_type</span> <span class="o">=</span> <span class="s2">&quot;reflectance&quot;</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">useDLS</span><span class="p">:</span>
@@ -14737,7 +14737,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14751,7 +14751,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14800,7 +14800,7 @@ Wall time: 315 ms
 
 <span class="n">viz</span> <span class="o">=</span> <span class="n">CircleViz</span><span class="p">(</span><span class="n">geojson_data</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">color_property</span><span class="o">=</span><span class="n">color_property</span><span class="p">,</span>
 <span class="c1">#                 color_stops=color_stops,</span>
-                <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()],</span> 
+                <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()],</span>
                 <span class="n">zoom</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">,</span>
                 <span class="n">style</span><span class="o">=</span><span class="s1">&#39;mapbox://styles/mapbox/satellite-streets-v9&#39;</span><span class="p">)</span>
 <span class="n">viz</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -14820,7 +14820,7 @@ Wall time: 315 ms
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14833,7 +14833,7 @@ Wall time: 315 ms
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -14849,7 +14849,7 @@ Wall time: 315 ms
 <script type='text/javascript'
         src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
 <link type='text/css'
-      href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' 
+      href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css'
       rel='stylesheet' />
 
 <style type='text/css'>
@@ -14918,8 +14918,8 @@ Wall time: 315 ms
     .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item {width: 30px; min-height: 20px;}
 
     /* scale annotation */
-    .mapboxgl-ctrl.mapboxgl-ctrl-scale { border-color: #6e6e6e; 
-                                         background-color: white; 
+    .mapboxgl-ctrl.mapboxgl-ctrl-scale { border-color: #6e6e6e;
+                                         background-color: white;
                                          color: #131516; }
 </style>
 
@@ -14989,7 +14989,7 @@ function calcColorLegend(myColorStops, title) {
             item.appendChild(key);
             item.appendChild(value);
             legendContent.appendChild(item);
-            
+
             data = document.getElementById('legend-color-points-value-' + p)
             // round number values in legend if precision defined
             if ((typeof(myColorStops[p][0]) == 'number') && (typeof(null) == 'number')) {
@@ -15085,7 +15085,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
             var key = document.createElement('span');
             key.className = 'legend-key circle';
             key.id = 'legend-radius-points-id-' + p;
-            key.style.backgroundColor = color;   
+            key.style.backgroundColor = color;
 
             key.style.width = '' + myRadiusStops[p][1] * 2 + 'px';
             key.style.height = '' + myRadiusStops[p][1] * 2 + 'px';
@@ -15101,7 +15101,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
             item.appendChild(key);
             item.appendChild(value);
             legendContent.appendChild(item);
-            
+
             data = document.getElementById('legend-radius-points-value-' + p)
 
             // round number values in legend if precision defined
@@ -15135,7 +15135,7 @@ function updateAttribMargin(legend) {
 
     // default margin is based on calculated legend width
     var attribMargin = legend.offsetWidth + 15;
-    
+
     // if horizontal legend layout (multiple legends are stacked vertically)
     if ('vertical' === 'horizontal') {
         document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin).toString() + 'px';
@@ -15194,7 +15194,7 @@ function generateMatchExpression(propertyValue, stops, defaultValue) {
         expression.push(stops[i][0], stops[i][1])
     }
     expression.push(defaultValue)
-    
+
     return expression
 }
 
@@ -15224,7 +15224,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     var transformRequest = function(url, resourceType) {
         const isMapboxRequest = url.slice(8, 22) === 'api.mapbox.com' ||
           url.slice(10, 26) === 'tiles.mapbox.com';
-      
+
         return {
           url: isMapboxRequest ? url.replace('?', '?pluginName=PythonMapboxgl&') : url
         }
@@ -15246,37 +15246,37 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
         transformRequest: transformRequest
     });
 
-    
-    
+
+
         map.addControl(new mapboxgl.AttributionControl({ compact: true }));
 
-    
 
-    
+
+
 
         map.addControl(new mapboxgl.NavigationControl());
 
-    
-
-    
-
-    
-        
-    
-        
 
 
-    
-        
-        
 
-    
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     map.on('style.load', function() {
-        
-        
+
+
 
         map.addSource('data', {
             'type': 'geojson',
@@ -15293,7 +15293,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             'maxzoom': 24,
             'minzoom': 0,
             'layout': {
-                
+
                 'text-size' : generateInterpolateExpression('zoom', [[0, 8],[22, 3* 8]] ),
                 'text-offset': [0,-1]
             },
@@ -15301,12 +15301,12 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
                 'text-halo-color': 'white',
                 'text-halo-width': generatePropertyExpression('interpolate', 'zoom', [[0,1], [18,5* 1]]),
                 'text-color': ['case',
-                    ['boolean', ['feature-state', 'hover'], false], 
-                    'black', 
+                    ['boolean', ['feature-state', 'hover'], false],
+                    'black',
                     '#131516']
             }
         }, '' )
-        
+
         map.addLayer({
             'id': 'circle',
             'source': 'data',
@@ -15314,44 +15314,44 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             'maxzoom': 24,
             'minzoom': 0,
             'paint': {
-                
+
                     'circle-color': ['case',
-                        ['boolean', ['feature-state', 'hover'], false], 
+                        ['boolean', ['feature-state', 'hover'], false],
                         'black',
                         generatePropertyExpression('interpolate', 'dls-yaw', None, 'grey' )],
-                    
+
                 'circle-radius' : generatePropertyExpression('interpolate', 'zoom', [[0,1], [22,10 * 1]]),
                 'circle-stroke-color': ['case',
-                    ['boolean', ['feature-state', 'hover'], false], 
-                    'black', 
+                    ['boolean', ['feature-state', 'hover'], false],
+                    'black',
                     'grey'],
                 'circle-stroke-width': generatePropertyExpression('interpolate', 'zoom', [[0,0.1], [18,5* 0.1]]),
                 'circle-opacity' : 1,
                 'circle-stroke-opacity' : 1
             }
         }, 'label');
-        
-        
+
+
 
         // Popups
-        
+
             var popupAction = 'mousemove',
                 popupSettings =  {
                     closeButton: false,
                     closeOnClick: false
                 };
-        
+
 
         // Create a popup
         var popup = new mapboxgl.Popup(popupSettings);
 
-        
+
 
         var hoveredStateId = 0;
-        
+
         // Show the popup on mouseover
         map.on(popupAction, function(e) {
-            
+
             var features = map.queryRenderedFeatures(e.point, {layers: ['circle', 'label'] });
 
             if (features.length > 0) {
@@ -15363,7 +15363,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
                     hoveredStateId = newHoveredStateId;
                 }
                 map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
-                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) +
                     ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
                 for (key in f.properties) {
@@ -15382,8 +15382,8 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
             }
         });
 
-        
-        
+
+
         // Fly to on click
         map.on('click', 'circle', function(e) {
             map.easeTo({
@@ -15489,7 +15489,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 <span class="c1"># Save out geojson data so we can open the image capture locations in our GIS</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span><span class="s1">&#39;imageSet.json&#39;</span><span class="p">),</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">geojson_data</span><span class="p">))</span>
-    
+
 <span class="k">try</span><span class="p">:</span>
     <span class="n">irradiance</span> <span class="o">=</span> <span class="n">panel_irradiance</span><span class="o">+</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
@@ -15530,7 +15530,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15544,7 +15544,7 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15658,7 +15658,7 @@ Alignment+Saving rate: 0.40 images per second
     <span class="n">exiftool_cmd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exiftoolpath&#39;</span><span class="p">))</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">exiftool_cmd</span> <span class="o">=</span> <span class="s1">&#39;exiftool&#39;</span>
-        
+
 <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> -csv=&quot;</span><span class="si">{}</span><span class="s1">&quot; -overwrite_original &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exiftool_cmd</span><span class="p">,</span> <span class="n">fullCsvPath</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -15678,7 +15678,7 @@ Alignment+Saving rate: 0.40 images per second
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15690,7 +15690,7 @@ Alignment+Saving rate: 0.40 images per second
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 
 
@@ -15703,7 +15703,7 @@ Alignment+Saving rate: 0.40 images per second
 
 <div class="jp-OutputArea-child">
 
-    
+
     <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
@@ -15727,7 +15727,7 @@ Alignment+Saving rate: 0.40 images per second
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span>
 </pre></div>
 
      </div>
