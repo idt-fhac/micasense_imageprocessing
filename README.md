@@ -58,10 +58,7 @@ applications of RedEdge imagery. In general, these are intended for developers t
 managing python packages and third party software. The purpose of this code is readability and clarity to help others
 develop processing workflows, therefore performance may not be optimal.
 
-While this code is similar to an installable python library (and supports the `pip install -e .` process) the
-main purpose of this library is one of documentation and education. For this reason, we expect most users to be looking
-at the source code for understanding or improvement, so they will run the notebooks from the directory that the library
-was `git clone`d it into.
+This package is available on PyPi and can be installed using `pip install micasense_imageprocessing`.
 
 ### Running this code
 

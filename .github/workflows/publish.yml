@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: release
-      url: https://pypi.org/p/assume-framework
+      url: https://pypi.org/p/micasense_imageprocessing
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
