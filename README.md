@@ -1,5 +1,13 @@
 ![Lint Status](https://github.com/brainergylab/micasense_imageprocessing/actions/workflows/python-test.yml/badge.svg)
 
+# Disclaimer - Community-maintained Version
+
+This project is an independent, open‑source library for processing data captured with MicaSense cameras.
+It is a fork of the unmaintained [Micasense imageprocessing library](https://github.com/micasense/imageprocessing/).
+
+It is not affiliated or distributed by Micasense.
+This project is an independent, open-source tool and is not affiliated with, endorsed by, or sponsored by MicaSense, EagleNXT, AgEagle Aerial Systems Inc., or any of their subsidiaries or affiliates.
+
 ## MicaSense RedEdge and Altum Image Processing Tutorials
 
 This repository includes tutorials and examples for processing MicaSense RedEdge and Altum images into usable
