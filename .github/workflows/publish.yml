@@ -48,7 +48,7 @@ jobs:
 
   pypi-publish:
     name: Upload release to PyPI
-    needs: build-and-test
+    needs: test
     runs-on: ubuntu-latest
     environment:
       name: release
