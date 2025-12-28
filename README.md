@@ -1,4 +1,9 @@
 ![Lint Status](https://github.com/brainergylab/micasense_imageprocessing/actions/workflows/python-test.yml/badge.svg)
+[![](https://img.shields.io/pypi/v/micasense_imageprocessing.svg)](https://pypi.org/pypi/micasense_imageprocessing/)
+[![](https://img.shields.io/pypi/pyversions/micasense_imageprocessing.svg)](https://pypi.org/pypi/micasense_imageprocessing/)
+[![](https://img.shields.io/pypi/l/micasense_imageprocessing.svg)](https://pypi.org/pypi/micasense_imageprocessing/)
+[![](https://img.shields.io/pypi/status/micasense_imageprocessing.svg)](https://pypi.org/pypi/micasense_imageprocessing/)
+
 
 # Disclaimer - Community-maintained Version
 
