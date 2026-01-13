@@ -179,3 +179,6 @@ class ImageSet(object):
         else:
             for params in save_params_list:
                 save_capture(params)
+
+    def __repr__(self):
+        return f"ImageSet(num_captures={len(self.captures)})"

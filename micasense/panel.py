@@ -330,3 +330,6 @@ class Panel(object):
         plt.tight_layout()
         plt.show()
         return fig, ax
+
+    def __repr__(self):
+        return f"Panel(panel_version={self.panel_version}, serial={self.serial}')"

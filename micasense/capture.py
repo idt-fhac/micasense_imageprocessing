@@ -1316,3 +1316,6 @@ class Capture(object):
             t_matrices.append(tm)
         warp_new = [np.dot(t, w) for w, t in zip(warp_matrices, t_matrices)]
         return warp_new
+
+    def __repr__(self):
+        return f"Capture(num_bands={self.num_bands}, camera_model='{self.camera_model}', flightid='{self.flightid}', bits_per_pixel={self.bits_per_pixel})"

@@ -582,3 +582,6 @@ class Image(object):
         B = B[0:3, 0:3]
         B = B / B[2, 2]
         return np.array(B)
+
+    def __repr__(self):
+        return f"Image(band_name={self.band_name}, band_index={self.band_index}, path='{self.path}')"

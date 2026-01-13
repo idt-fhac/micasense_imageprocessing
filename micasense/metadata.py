@@ -446,3 +446,6 @@ class Metadata(object):
     def panel_serial(self):
         """The panel serial number as extracted from the image by the camera"""
         return self.get_item("XMP:PanelSerial")
+
+    def __repr__(self):
+        return f"Metadata(SourceFile={self.exif[0]['SourceFile']}, ModifyDate={self.exif[0]['EXIF:ModifyDate']})"
