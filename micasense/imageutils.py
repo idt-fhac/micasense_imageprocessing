@@ -848,6 +848,7 @@ def prepare_exif_for_stacks(thecapture, thefilename):
     exif_data = [
         {"Capture ID": theid},
         {"Filename": thefilename},
+        {"Make": str(thecapture.camera_make)},
         {"Model": str(thecapture.camera_model)},
         {"GPSDateStamp": thecapture.utc_time().strftime("%Y:%m:%d")},
         {"GPSTimeStamp": thecapture.utc_time().strftime("%H:%M:%S.%f")},

@@ -41,17 +41,17 @@ class Metadata(object):
     """Container for Micasense image metadata"""
 
     def __init__(self, filename: str, exiftool_obj=None):
+        # if an exif context is provided - use this
         if exiftool_obj is not None:
             try:
                 self.exif = exiftool_obj.get_metadata(filename)
             except Exception as e:
                 logger.error("error calling metadata for %s - %s", filename, e)
-            return
-
-        if not os.path.isfile(filename):
-            raise IOError("Input path is not a file")
-        with exiftool.ExifToolHelper() as exift:
-            self.exif = exift.get_metadata(filename)
+        else:
+            if not os.path.isfile(filename):
+                raise IOError("Input path is not a file")
+            with exiftool.ExifToolHelper() as exift:
+                self.exif = exift.get_metadata(filename)
 
     def get_all(self):
         """Get all extracted metadata items"""

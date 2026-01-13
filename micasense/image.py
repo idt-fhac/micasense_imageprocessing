@@ -88,6 +88,7 @@ class Image(object):
         self.dls_present = self.meta.dls_present()
         self.dls_yaw, self.dls_pitch, self.dls_roll = self.meta.dls_pose()
         self.capture_id = self.meta.capture_id()
+        self.camera_make = self.meta.camera_make()
         self.camera_model = self.meta.camera_model()
         self.camera_serial = self.meta.camera_serial()
         self.flight_id = self.meta.flight_id()

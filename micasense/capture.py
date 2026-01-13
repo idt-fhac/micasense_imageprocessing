@@ -90,6 +90,7 @@ class Capture(object):
             raise RuntimeError("Images provided must have the same capture_id.")
         self.uuid = self.images[0].capture_id
         self.flightid = self.images[0].flight_id
+        self.camera_make = self.images[0].camera_make
         self.camera_model = self.images[0].camera_model
         self.camera_serial = self.images[0].camera_serial
         self.camera_serials = set([img.camera_serial for img in self.images])
