@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * CI pipeline
 * Community-Disclaimer
-* SCM based versioning 
+* SCM based versioning
 * add file_paths to nested_lists output of imageset (741e443a)
 * add functions to save tiffs separately (cf2bbdee)
 
