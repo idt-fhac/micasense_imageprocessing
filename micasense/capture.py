@@ -1281,12 +1281,12 @@ class Capture(object):
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
                 logger.warning(
                     "Insufficient SIFT matches for band index %s (%s); using calibrated warp matrix.",
                     ix,
                     self.images[ix].band_name,
                 )
+                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
             models.append(P)
             if verbose > 0:
                 logger.info("Finished aligning band %d", ix)
