@@ -104,7 +104,6 @@ class Capture(object):
 
         self.__aligned_capture = None
         self.__aligned_radiometric_pan_sharpened_capture = None
-        self.__sift_warp_matrices = None
 
     def set_panel_corners(self, panel_corners):
         """

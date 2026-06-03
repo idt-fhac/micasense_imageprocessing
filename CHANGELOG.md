@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * delete old config files
 * fixed jupyter notebooks
 * `micasense.mp_config.spawn_pool()` using a per-pool spawn context (rawpy/OpenMP safe on Linux)
+* `micasense.warp_io` — `save_warp_matrices` / `load_warp_matrices` for `.npy` warp matrix I/O
 
 ### Fixed
 
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `SIFT_align_capture`: fall back to calibrated warp matrices when SIFT match count is low (e.g. LWIR) instead of raising
 * `ImageSet.save_stacks` and `imageutils` alignment pools use spawn context (not global `set_start_method`)
 * declare `rawpy` as a runtime dependency
+* remove unused `Capture.__sift_warp_matrices`
 
 ## [0.1.1] - 2025-12-28
 
