@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ImageSet.save_stacks` and `imageutils` alignment pools use spawn context (not global `set_start_method`)
 * declare `rawpy` as a runtime dependency
 * remove unused `Capture.__sift_warp_matrices`
+* `SIFT_align_capture`: remove redundant raw/undistort work and dead accumulators
 
 ## [0.1.1] - 2025-12-28
 
