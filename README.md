@@ -69,7 +69,7 @@ This package is available on PyPi and can be installed using `pip install micase
 
 The code in these tutorials consists of two parts. First, the tutorials generally end in `.ipynb` and are the Jupyter
 notebooks that were used to create the web page tutorials linked above. You can run this code by opening a
-terminal/iTerm (linux/mac) or Anaconda Command Prompt (Windows), navigating to the folder you cloned the git repository
+terminal (linux/mac) or Command Prompt/PowerShell (Windows), navigating to the folder you cloned the git repository
 into, and running
 
 ```bash
@@ -95,8 +95,8 @@ Want to correct an issue or expand library functionality? Fork the repository, m
 on github.
 
 Have a question? Please double-check that you're able to run the setup notebook successfully, and resolve any issues
-with that first. If you're pulling newer code, it may be necessary in some cases to delete and re-create
-your `micasense` conda environment to make sure you have all of the expected packages.
+with that first. If you're pulling newer code, recreate your virtual environment or reinstall with
+`pip install -e ".[test]"` to pick up dependency changes.
 
 This code is a community effort and is not supported by MicaSense support. Please don't reach out to MicaSense support
 for issues with this codebase; instead, work through the above troubleshooting steps and
@@ -104,15 +104,17 @@ then [create an issue on github](https://github.com/brainergylab/micasense_image
 
 ### Tests
 
-Tests for many library functions are included in the `tests` diretory. Install the `pytest` module through your package
-manager (e.g. `pip install pytest`) and then tests can be run from the main directory using the command:
+Tests for many library functions are included in the `tests` directory. Install test dependencies and run from the repository root:
 
 ```bash
+pip install -e ".[test]"
 pytest
 ```
 
+Coverage and default options are configured in `pyproject.toml` (`pytest>=9`).
+
 Test execution can be relatively slow (2-3 minutes) as there is a lot of image processing occuring in some of the tests,
-and quite a bit of re-used IO. To speed up tests, install the `pytest-xdist` plugin using `conda` or `pip` and achieve a
+and quite a bit of re-used IO. To speed up tests, install the `pytest-xdist` plugin using `pip` and achieve a
 significant speed up by running tests in parallel.
 
 ```bash

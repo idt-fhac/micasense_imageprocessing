@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `micasense.mp_config.spawn_pool()` using a per-pool spawn context (rawpy/OpenMP safe on Linux)
 * `micasense.warp_io` — `save_warp_matrices` / `load_warp_matrices` for `.npy` warp matrix I/O
 * Alignment v2, Batch Processing v2 notebooks and `batch_processing_script.py` use `warp_io`
+* pytest 9+ native `[tool.pytest]` config with coverage in CI
+
+### Changed
+
+* setup docs and README use venv/pip instead of conda; removed `micasense_conda_env.yml`
 
 ### Fixed
 

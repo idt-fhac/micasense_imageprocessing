@@ -47,8 +47,8 @@ Homepage = "https://github.com/brainergylab/micasense_imageprocessing"
 
 [project.optional-dependencies]
 test = [
-  "pytest >= 7.4.3",
-  "pytest-cov",
+  "pytest>=9",
+  "pytest-cov>=6",
 ]
 docs = [
   "jupyter",
@@ -65,5 +65,19 @@ exclude = ["data*", "tests*"]
 [tool.pytest]
 testpaths = ["tests"]
 markers = [
-    "newgdal",
+    "newgdal: tests that require newer GDAL stack behavior",
 ]
+addopts = [
+    "-m",
+    "not newgdal",
+    "--cov=micasense",
+    "--cov-report=xml",
+    "--cov-report=term-missing",
+]
+
+[tool.coverage.run]
+source = ["micasense"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
