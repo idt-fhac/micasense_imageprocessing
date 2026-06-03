@@ -17,6 +17,7 @@ dependencies = [
     "requests",
     "numpy",
     "opencv-python",
+    "rawpy",
     "gdal",
     "pysolar",
     "matplotlib",

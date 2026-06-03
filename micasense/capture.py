@@ -1167,12 +1167,10 @@ class Capture(object):
         # use the calibrated warp matrices to verify keypoints
         warp_matrices_calibrated = self.get_warp_matrices(ref_index=ref)
 
-        ref_image_SIFT = self.images[ref].undistorted(self.images[ref].raw())
-        if rest_shape != ref_shape:
-            ref_image_SIFT = resize(ref_image_SIFT, rest_shape)
-            ref_image_SIFT = (ref_image_SIFT / ref_image_SIFT.max() * 65535).astype(
-                np.uint16
-            )
+        ref_img = self.images[ref].undistorted(self.images[ref].raw())
+        if ref_shape != rest_shape:
+            ref_img = resize(ref_img, rest_shape)
+        ref_image_SIFT = (ref_img / ref_img.max() * 65535).astype(np.uint16)
 
         descriptor_extractor.detect_and_extract(ref_image_SIFT)
         keypoints_ref = descriptor_extractor.keypoints
@@ -1283,7 +1281,13 @@ class Capture(object):
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                raise Exception(f"no match for index {ix}")
+                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
+                logger.warning(
+                    "Insufficient SIFT matches for band index %s (%s); using calibrated warp matrix.",
+                    ix,
+                    self.images[ix].band_name,
+                )
+                kpi, kpr = filtered_kpi, filtered_kpr
             models.append(P)
             kp_image.append(kpi)
             kp_ref.append(kpr)

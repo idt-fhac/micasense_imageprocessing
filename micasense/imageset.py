@@ -29,8 +29,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import fnmatch
-import multiprocessing
 import os
+
+from micasense.mp_config import spawn_pool
 
 import exiftool
 
@@ -170,12 +171,12 @@ class ImageSet(object):
             )
 
         if multiprocess:
-            pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
-            for i, _ in enumerate(pool.imap_unordered(save_capture, save_params_list)):
-                if progress_callback is not None:
-                    progress_callback(float(i) / float(len(save_params_list)))
-            pool.close()
-            pool.join()
+            with spawn_pool() as pool:
+                for i, _ in enumerate(
+                    pool.imap_unordered(save_capture, save_params_list)
+                ):
+                    if progress_callback is not None:
+                        progress_callback(float(i) / float(len(save_params_list)))
         else:
             for params in save_params_list:
                 save_capture(params)

@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * repr functions to classes so that debugging is easier
 * delete old config files
 * fixed jupyter notebooks
+* `micasense.mp_config.spawn_pool()` using a per-pool spawn context (rawpy/OpenMP safe on Linux)
+
+### Fixed
+
+* `SIFT_align_capture`: assign reference SIFT image when reference and target bands share shape (fixes `NameError` when `ref` is a multispectral band)
+* `SIFT_align_capture`: fall back to calibrated warp matrices when SIFT match count is low (e.g. LWIR) instead of raising
+* `ImageSet.save_stacks` and `imageutils` alignment pools use spawn context (not global `set_start_method`)
+* declare `rawpy` as a runtime dependency
 
 ## [0.1.1] - 2025-12-28
 

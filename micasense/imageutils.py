@@ -387,20 +387,13 @@ def align_capture(
             )
     warp_matrices = [None] * len(alignment_pairs)
 
-    # required to work across linux/mac/windows, see https://stackoverflow.com/questions/47852237
-    if multithreaded and multiprocessing.get_start_method() != "spawn":
-        try:
-            multiprocessing.set_start_method("spawn", force=True)
-        except ValueError:
-            multithreaded = False
+    from micasense.mp_config import spawn_pool
 
     if multithreaded:
-        pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
-        for _, mat in enumerate(pool.imap_unordered(align, alignment_pairs)):
-            warp_matrices[mat["match_index"]] = mat["warp_matrix"]
-            logger.info("Finished aligning band %s", mat["match_index"])
-        pool.close()
-        pool.join()
+        with spawn_pool() as pool:
+            for _, mat in enumerate(pool.imap_unordered(align, alignment_pairs)):
+                warp_matrices[mat["match_index"]] = mat["warp_matrix"]
+                logger.info("Finished aligning band %s", mat["match_index"])
     else:
         # Single-threaded alternative
         for pair in alignment_pairs:
