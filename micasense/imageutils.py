@@ -31,7 +31,7 @@ import cv2
 import exiftool
 import numpy as np
 from skimage.filters import gaussian, rank
-from skimage.morphology import binary_closing
+from skimage.morphology import closing
 from skimage.morphology import disk
 from skimage.transform import warp
 from skimage.util import img_as_ubyte
@@ -753,7 +753,7 @@ def radiometric_pan_sharpen(
         pan = capture.images[panchro_band].undistorted_reflectance()
 
     # we need this , because the panchro band doesn't necessarily fully cover the multispec bands
-    pan_mask = binary_closing(pan > 1e-4)
+    pan_mask = closing(pan > 1e-4)
     if "LWIR" in capture.band_names():
         sigma = 12 / 3008 * h
         panf = gaussian(pan, sigma)
@@ -785,10 +785,10 @@ def radiometric_pan_sharpen(
             panMaskLow = warp(pan_mask, np.linalg.inv(wm), output_shape=(hLow, wLow))
             pLow[pLow <= 1e-4] = 1.0
             if irradiance_list is None:
-                mask = binary_closing(i.undistorted_radiance() > 1e-4)
+                mask = closing(i.undistorted_radiance() > 1e-4)
                 r = i.undistorted_radiance() / pLow
             else:
-                mask = binary_closing(i.undistorted_reflectance() > 1e-4)
+                mask = closing(i.undistorted_reflectance() > 1e-4)
                 r = i.undistorted_reflectance() / pLow
             if i.band_name == "LWIR":
                 H = warp(r, wm, output_shape=(h, w)) * panf
