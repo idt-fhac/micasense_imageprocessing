@@ -1167,10 +1167,9 @@ class Capture(object):
         # use the calibrated warp matrices to verify keypoints
         warp_matrices_calibrated = self.get_warp_matrices(ref_index=ref)
 
-        if not rest_shape == ref_shape:
-            ref_image_SIFT = resize(
-                self.images[ref].undistorted(self.images[ref].raw()), rest_shape
-            )
+        ref_image_SIFT = self.images[ref].undistorted(self.images[ref].raw())
+        if rest_shape != ref_shape:
+            ref_image_SIFT = resize(ref_image_SIFT, rest_shape)
             ref_image_SIFT = (ref_image_SIFT / ref_image_SIFT.max() * 65535).astype(
                 np.uint16
             )
