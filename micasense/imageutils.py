@@ -753,7 +753,7 @@ def radiometric_pan_sharpen(
         pan = capture.images[panchro_band].undistorted_reflectance()
 
     # we need this , because the panchro band doesn't necessarily fully cover the multispec bands
-    pan_mask = closing(pan > 1e-4)
+    pan_mask = closing(pan > 1e-4, footprint=disk(1)).astype(bool)
     if "LWIR" in capture.band_names():
         sigma = 12 / 3008 * h
         panf = gaussian(pan, sigma)
@@ -785,11 +785,11 @@ def radiometric_pan_sharpen(
             panMaskLow = warp(pan_mask, np.linalg.inv(wm), output_shape=(hLow, wLow))
             pLow[pLow <= 1e-4] = 1.0
             if irradiance_list is None:
-                mask = closing(i.undistorted_radiance() > 1e-4)
-                r = i.undistorted_radiance() / pLow
+                band = i.undistorted_radiance()
             else:
-                mask = closing(i.undistorted_reflectance() > 1e-4)
-                r = i.undistorted_reflectance() / pLow
+                band = i.undistorted_reflectance()
+            mask = closing(band > 1e-4, footprint=disk(1)).astype(bool)
+            r = band / pLow
             if i.band_name == "LWIR":
                 H = warp(r, wm, output_shape=(h, w)) * panf
             else:
