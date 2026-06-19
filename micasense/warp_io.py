@@ -20,9 +20,7 @@ def warp_matrices_to_arrays(matrices: List[MatrixLike]) -> np.ndarray:
     return np.array([_matrix_to_array(m) for m in matrices], dtype=object)
 
 
-def arrays_to_warp_matrices(
-    arrays: np.ndarray, *, as_projective: bool = True
-) -> list:
+def arrays_to_warp_matrices(arrays: np.ndarray, *, as_projective: bool = True) -> list:
     """
     Convert a loaded object array back to warp matrices.
 
@@ -44,9 +42,7 @@ def save_warp_matrices(path: Union[Path, str], matrices: List[MatrixLike]) -> No
     np.save(Path(path), warp_matrices_to_arrays(matrices), allow_pickle=True)
 
 
-def load_warp_matrices(
-    path: Union[Path, str], *, as_projective: bool = True
-) -> list:
+def load_warp_matrices(path: Union[Path, str], *, as_projective: bool = True) -> list:
     """Load warp matrices written by :func:`save_warp_matrices`."""
     arrays = np.load(Path(path), allow_pickle=True)
     return arrays_to_warp_matrices(arrays, as_projective=as_projective)

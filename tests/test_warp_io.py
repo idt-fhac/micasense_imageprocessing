@@ -5,7 +5,6 @@ import numpy as np
 from skimage.transform import ProjectiveTransform
 
 from micasense.warp_io import (
-    arrays_to_warp_matrices,
     load_warp_matrices,
     save_warp_matrices,
     warp_matrices_to_arrays,

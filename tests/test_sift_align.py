@@ -2,9 +2,7 @@
 """Tests for SIFT_align_capture and multiprocessing spawn configuration."""
 
 import numpy as np
-import pytest
 
-from micasense.capture import Capture
 from micasense.mp_config import spawn_pool
 
 

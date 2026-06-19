@@ -3,7 +3,6 @@ import os
 import time
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from mapboxgl.utils import df_to_geojson
 from micasense.capture import Capture
@@ -113,9 +112,7 @@ else:
 
 if Path("./" + warp_matrices_filename).is_file():
     print("Found existing warp matrices for camera", cam_serial)
-    loaded = load_warp_matrices(
-        warp_matrices_filename, as_projective=panchro_cam
-    )
+    loaded = load_warp_matrices(warp_matrices_filename, as_projective=panchro_cam)
     if panchro_cam:
         warp_matrices_SIFT = loaded
     else:
