@@ -104,7 +104,6 @@ class Capture(object):
 
         self.__aligned_capture = None
         self.__aligned_radiometric_pan_sharpened_capture = None
-        self.__sift_warp_matrices = None
 
     def set_panel_corners(self, panel_corners):
         """
@@ -1160,35 +1159,37 @@ class Capture(object):
         descriptors = []
         img_index = list(range(len(self.images)))
         img_index.pop(ref)
-        ref_shape = self.images[ref].raw().shape
+        ref_image = self.images[ref]
+        ref_raw = ref_image.raw()
+        ref_shape = ref_raw.shape
         rest_shape = self.images[img_index[0]].raw().shape
         scale = np.array(ref_shape) / np.array(rest_shape)
 
         # use the calibrated warp matrices to verify keypoints
         warp_matrices_calibrated = self.get_warp_matrices(ref_index=ref)
 
-        ref_image_SIFT = self.images[ref].undistorted(self.images[ref].raw())
-        if rest_shape != ref_shape:
-            ref_image_SIFT = resize(ref_image_SIFT, rest_shape)
-            ref_image_SIFT = (ref_image_SIFT / ref_image_SIFT.max() * 65535).astype(
-                np.uint16
-            )
+        ref_img = ref_image.undistorted(ref_raw)
+        if ref_shape != rest_shape:
+            ref_img = resize(ref_img, rest_shape)
+        ref_image_SIFT = (ref_img / ref_img.max() * 65535).astype(np.uint16)
 
         descriptor_extractor.detect_and_extract(ref_image_SIFT)
         keypoints_ref = descriptor_extractor.keypoints
         descriptor_ref = descriptor_extractor.descriptors
         if verbose > 1:
             logger.info("found %d keypoints in the reference image", len(keypoints_ref))
-        match_images = []
         ratio = []
         filter_tr = []
+        raw_shapes = {}
         img_index = np.array(img_index)
         # extract keypoints % descriptors
         for ix in img_index:
-            img = self.images[ix].undistorted(self.images[ix].raw())
+            raw_band = self.images[ix].raw()
+            raw_shapes[ix] = raw_band.shape
+            img = self.images[ix].undistorted(raw_band)
             if not img.shape == rest_shape:
                 # if we have a thermal image, upsample to match the resolution of the multispec images
-                img_base = self.images[ix].raw()[self.images[ix].raw() > 0].min()
+                img_base = raw_band[raw_band > 0].min()
                 img = img.astype(float)
                 img[img > 0] = img[img > 0] - img_base
                 img = resize(img, rest_shape)
@@ -1202,7 +1203,6 @@ class Capture(object):
                 else:
                     # less strict filtering for the BLUE images
                     filter_tr.append(err_blue)
-            match_images.append(img)
             descriptor_extractor.detect_and_extract(img)
             keypoints.append(descriptor_extractor.keypoints)
             descriptors.append(descriptor_extractor.descriptors)
@@ -1251,11 +1251,9 @@ class Capture(object):
                 warp_matrices_calibrated[ix] = np.dot(warp_blue_ref, warpBLUE[ix])
 
         models = []
-        kp_image = []
-        kp_ref = []
         for m, k, ix, t in zip(matches, keypoints, img_index, filter_tr):
             # we need to down scale the thermal image for the proper transform
-            scale_i = np.array(self.images[ix].raw().shape) / np.array(rest_shape)
+            scale_i = np.array(raw_shapes[ix]) / np.array(rest_shape)
 
             filtered_kpi, filtered_kpr, filtered_match, err = self.filter_keypoints(
                 k,
@@ -1283,13 +1281,13 @@ class Capture(object):
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                raise Exception(f"no match for index {ix}")
+                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
+                logger.warning(
+                    "Insufficient SIFT matches for band index %s (%s); using calibrated warp matrix.",
+                    ix,
+                    self.images[ix].band_name,
+                )
             models.append(P)
-            kp_image.append(kpi)
-            kp_ref.append(kpr)
-            img = self.images[ix].undistorted(self.images[ix].raw())
-
-            # no need for the upsampled stacks here
             if verbose > 0:
                 logger.info("Finished aligning band %d", ix)
 

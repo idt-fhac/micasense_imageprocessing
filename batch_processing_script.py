@@ -3,12 +3,10 @@ import os
 import time
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from mapboxgl.utils import df_to_geojson
-from skimage.transform import ProjectiveTransform
-
 from micasense.capture import Capture
+from micasense.warp_io import load_warp_matrices
 import micasense.imageset as imageset
 
 parser = argparse.ArgumentParser(
@@ -114,19 +112,11 @@ else:
 
 if Path("./" + warp_matrices_filename).is_file():
     print("Found existing warp matrices for camera", cam_serial)
-    load_warp_matrices = np.load(warp_matrices_filename, allow_pickle=True)
-    loaded_warp_matrices = []
-    for matrix in load_warp_matrices:
-        if panchro_cam:
-            transform = ProjectiveTransform(matrix=matrix.astype("float64"))
-            loaded_warp_matrices.append(transform)
-        else:
-            loaded_warp_matrices.append(matrix.astype("float32"))
-
+    loaded = load_warp_matrices(warp_matrices_filename, as_projective=panchro_cam)
     if panchro_cam:
-        warp_matrices_SIFT = loaded_warp_matrices
+        warp_matrices_SIFT = loaded
     else:
-        warp_matrices = loaded_warp_matrices
+        warp_matrices = loaded
     print("Loaded warp matrices from", Path("./" + warp_matrices_filename).resolve())
 else:
     print("No warp matrices found at expected location:", warp_matrices_filename)
