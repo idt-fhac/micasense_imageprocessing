@@ -199,8 +199,8 @@ class Panel(object):
         for rotation in range(0, 4):
             qr_points = np.roll(reference_qr_pts, rotation, axis=0)
 
-            src = np.asarray([tuple(row) for row in qr_points[:]], float)
-            dst = np.asarray([tuple(row) for row in self.qr_corners()[:]], float)
+            src = np.asarray(qr_points, dtype=np.float32)
+            dst = np.asarray(self.qr_corners(), dtype=np.float32)
 
             # we determine the homography from the 4 corner points
             warp_matrix = cv2.getPerspectiveTransform(src, dst)
