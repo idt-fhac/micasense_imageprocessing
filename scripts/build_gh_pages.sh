@@ -15,7 +15,7 @@ nbconvert_args=(
 
 if [[ "${EXECUTE}" == "1" ]]; then
   nbconvert_args+=(
-    --ExecutePreprocessor.timeout=60
+    --ExecutePreprocessor.timeout=600
     --execute
   )
 fi

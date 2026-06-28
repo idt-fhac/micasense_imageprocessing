@@ -244,19 +244,30 @@ class Image(object):
     def raw(self):
         """Lazy load the raw image once necessary"""
         if self.__raw_image is None:
+            raw_image = None
             try:
                 import rawpy
 
                 # to support 12-bit DNG files, otherwise we get "SIFT found no features" error
+                raw_image = rawpy.imread(self.path).raw_image
                 if self.bits_per_pixel == 12:
-                    self.__raw_image = rawpy.imread(self.path).raw_image * 16
-                else:
-                    self.__raw_image = rawpy.imread(self.path).raw_image
+                    raw_image = raw_image * 16
             except ImportError:
-                self.__raw_image = cv2.imread(self.path, -1)
+                pass
             except IOError:
                 logger.error("Could not open image at path %s", self.path)
                 raise
+            except Exception as exc:
+                if exc.__class__.__name__ != "LibRawFileUnsupportedError":
+                    raise
+
+            if raw_image is None:
+                raw_image = cv2.imread(self.path, -1)
+                if raw_image is None:
+                    logger.error("Could not open image at path %s", self.path)
+                    raise IOError("Could not open image at path {}".format(self.path))
+
+            self.__raw_image = raw_image
         return self.__raw_image
 
     def set_raw(self, img):

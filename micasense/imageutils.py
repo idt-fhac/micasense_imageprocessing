@@ -33,7 +33,6 @@ from skimage.filters import gaussian, rank
 from skimage.morphology import closing
 from skimage.morphology import disk
 from skimage.transform import warp
-from skimage.util import img_as_ubyte
 
 logger = logging.getLogger(__name__)
 
@@ -136,9 +135,7 @@ def normalize(im, local_min=None, local_max=None):
 
 
 def local_normalize(im):
-    norm = img_as_ubyte(
-        normalize(im)
-    )  # TODO: mainly using this as a type conversion, but it's expensive
+    norm = (normalize(im) * 255).astype(np.uint8)
     width, _ = im.shape
     disksize = int(width / 5)
     if disksize % 2 == 0:
@@ -204,11 +201,11 @@ def align(pair):
     # Initialize the matrix to identity
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
         # warp_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]], dtype=float)
-        warp_matrix = pair["warp_matrix_init"]
+        warp_matrix = np.array(pair["warp_matrix_init"], dtype=np.float32)
     else:
         # warp_matrix = np.array([[1,0,0],[0,1,0]], dtype=float)
         warp_matrix = np.array(
-            [[1, 0, translations[1]], [0, 1, translations[0]]], dtype=float
+            [[1, 0, translations[1]], [0, 1, translations[0]]], dtype=np.float32
         )
 
     w = pair["ref_image"].shape[1]
@@ -293,6 +290,10 @@ def align(pair):
             except TypeError:
                 cc, warp_matrix = cv2.findTransformECC(
                     grad1, grad2, warp_matrix, warp_mode, criteria
+                )
+            except cv2.error as e:
+                logger.warning(
+                    "ECC failed to converge at pyramid level %s: %s", level, e
                 )
 
             if show_debug_images:

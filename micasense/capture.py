@@ -343,7 +343,7 @@ class Capture(object):
     ):
         """
         Compute undistorted image reflectance from irradiance list.
-        :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
+        :param irradiance_list: List of mean irradiance values for each band, e.g., from Capture.dls_irradiance() or Capture.panel_irradiance().
         :param force_recompute: boolean to determine if reflectance is recomputed.
         :return: None
         """
@@ -386,7 +386,7 @@ class Capture(object):
     def reflectance(self, irradiance_list):
         """
         Compute reflectance Images.
-        :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
+        :param irradiance_list: List of mean irradiance values for each band, e.g., from Capture.dls_irradiance() or Capture.panel_irradiance().
         :return: List of reflectance EO and long wave infrared Images for given irradiance.
         """
         eo_imgs = [
@@ -399,7 +399,7 @@ class Capture(object):
     def undistorted_reflectance(self, irradiance_list):
         """
         Compute undistorted reflectance Images.
-        :param irradiance_list: List returned from Capture.dls_irradiance() or Capture.panel_irradiance()   TODO: improve this docstring
+        :param irradiance_list: List of mean irradiance values for each band, e.g., from Capture.dls_irradiance() or Capture.panel_irradiance().
         :return: List of undistorted reflectance images for given irradiance.
         """
         eo_imgs = [
@@ -517,7 +517,7 @@ class Capture(object):
     def set_external_rig_relatives(self, external_rig_relatives):
         """
         Set external rig relatives.
-        :param external_rig_relatives: TODO: Write this parameter docstring
+        :param external_rig_relatives: Dictionary of external rig relative coordinates keyed by string of band index.
         :return: None
         """
         for i, img in enumerate(self.images):
@@ -557,7 +557,6 @@ class Capture(object):
         Creates aligned Capture. Computes undistorted radiance or reflectance images if necessary.
         :param irradiance_list: List of mean panel region irradiance.
         :param warp_matrices: 2d List of warp matrices derived from Capture.get_warp_matrices()
-        :param normalize: FIXME: This parameter isn't used?
         :param img_type: str 'radiance' or 'reflectance' depending on image metadata.
         :param motion_type: OpenCV import. Also know as warp_mode. MOTION_HOMOGRAPHY or MOTION_AFFINE.
                             For Altum images only use HOMOGRAPHY.
@@ -1281,12 +1280,12 @@ class Capture(object):
             # most of the time this will occur for the thermal image, as we have a hard time
             # finding a good matches between panchro & thermal in most cases
             else:
-                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
                 logger.warning(
                     "Insufficient SIFT matches for band index %s (%s); using calibrated warp matrix.",
                     ix,
                     self.images[ix].band_name,
                 )
+                P = ProjectiveTransform(matrix=warp_matrices_calibrated[ix])
             models.append(P)
             if verbose > 0:
                 logger.info("Finished aligning band %d", ix)
