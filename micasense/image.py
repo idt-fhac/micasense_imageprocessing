@@ -258,7 +258,7 @@ class Image(object):
                 logger.error("Could not open image at path %s", self.path)
                 raise
             except Exception as exc:
-                if exc.__class__.__name__ != 'LibRawFileUnsupportedError':
+                if exc.__class__.__name__ != "LibRawFileUnsupportedError":
                     raise
 
             if raw_image is None:

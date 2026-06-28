@@ -33,7 +33,6 @@ from skimage.filters import gaussian, rank
 from skimage.morphology import closing
 from skimage.morphology import disk
 from skimage.transform import warp
-from skimage.util import img_as_ubyte
 
 logger = logging.getLogger(__name__)
 

@@ -51,4 +51,6 @@ def test_panel_corners_runs_on_example_panels(image_path: str):
 def test_panel_corners_examples_present():
     """Fail with a clear message if sample data is missing."""
     files = _example_panel_images()
-    assert files, "No example panel images found under data/. Did you fetch LFS/sample data?"
+    assert files, (
+        "No example panel images found under data/. Did you fetch LFS/sample data?"
+    )
