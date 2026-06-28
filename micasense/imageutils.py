@@ -135,9 +135,7 @@ def normalize(im, local_min=None, local_max=None):
 
 
 def local_normalize(im):
-    norm = img_as_ubyte(
-        normalize(im)
-    )  # TODO: mainly using this as a type conversion, but it's expensive
+    norm = (normalize(im) * 255).astype(np.uint8)
     width, _ = im.shape
     disksize = int(width / 5)
     if disksize % 2 == 0:
