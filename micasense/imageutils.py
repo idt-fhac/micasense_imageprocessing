@@ -201,11 +201,11 @@ def align(pair):
     # Initialize the matrix to identity
     if warp_mode == cv2.MOTION_HOMOGRAPHY:
         # warp_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]], dtype=float)
-        warp_matrix = pair["warp_matrix_init"]
+        warp_matrix = np.array(pair["warp_matrix_init"], dtype=np.float32)
     else:
         # warp_matrix = np.array([[1,0,0],[0,1,0]], dtype=float)
         warp_matrix = np.array(
-            [[1, 0, translations[1]], [0, 1, translations[0]]], dtype=float
+            [[1, 0, translations[1]], [0, 1, translations[0]]], dtype=np.float32
         )
 
     w = pair["ref_image"].shape[1]
