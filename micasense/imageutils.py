@@ -291,6 +291,10 @@ def align(pair):
                 cc, warp_matrix = cv2.findTransformECC(
                     grad1, grad2, warp_matrix, warp_mode, criteria
                 )
+            except cv2.error as e:
+                logger.warning(
+                    "ECC failed to converge at pyramid level %s: %s", level, e
+                )
 
             if show_debug_images:
                 logger.info("Warp after alignment level %s is \n%s", level, warp_matrix)
