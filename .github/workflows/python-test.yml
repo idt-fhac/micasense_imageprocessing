@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.12", "3.14"]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -37,8 +37,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -qq install exiftool libgdal-dev libzbar0t64
+      - name: Install gdal python bindings
+        run: |
           GDAL_VERSION=$(gdal-config --version)
-          pip install --no-cache-dir "gdal==$GDAL_VERSION"
+          pip install -U setuptools wheel numpy
+          pip install --no-cache-dir --no-build-isolation "gdal==${GDAL_VERSION}"
       - name: Install package and test dependencies
         run: pip install -e ".[test]"
       - name: Test with pytest
