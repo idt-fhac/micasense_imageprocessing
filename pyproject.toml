@@ -52,6 +52,10 @@ test = [
 docs = [
   "jupyter",
   "nbconvert",
+  "pandas",
+  "mapboxgl",
+  "jenkspy",
+  "ipywidgets",
 ]
 
 [tool.setuptools.packages.find]
