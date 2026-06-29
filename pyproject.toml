@@ -68,8 +68,6 @@ markers = [
     "newgdal: tests that require newer GDAL stack behavior",
 ]
 addopts = [
-    "-m",
-    "not newgdal",
     "--cov=micasense",
     "--cov-report=xml",
     "--cov-report=term-missing",
