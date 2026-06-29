@@ -4,10 +4,24 @@ import time
 from pathlib import Path
 
 import pandas as pd
-from mapboxgl.utils import df_to_geojson
 from micasense.capture import Capture
 from micasense.warp_io import load_warp_matrices
 import micasense.imageset as imageset
+
+
+def df_to_geojson(df, properties, lat="latitude", lon="longitude"):
+    geojson = {"type": "FeatureCollection", "features": []}
+    for _, row in df.iterrows():
+        feature = {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {"type": "Point", "coordinates": [row[lon], row[lat]]},
+        }
+        for prop in properties:
+            feature["properties"][prop] = row[prop]
+        geojson["features"].append(feature)
+    return geojson
+
 
 parser = argparse.ArgumentParser(
     prog="MicaSenseBatchProcessing",
@@ -120,6 +134,8 @@ if Path("./" + warp_matrices_filename).is_file():
     print("Loaded warp matrices from", Path("./" + warp_matrices_filename).resolve())
 else:
     print("No warp matrices found at expected location:", warp_matrices_filename)
+    warp_matrices = None
+    warp_matrices_SIFT = None
 
 if not os.path.exists(outputPath):
     os.makedirs(outputPath)

@@ -53,8 +53,6 @@ docs = [
   "jupyter",
   "nbconvert",
   "pandas",
-  "mapboxgl",
-  "jenkspy",
   "ipywidgets",
 ]
 
