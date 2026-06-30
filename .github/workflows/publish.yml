@@ -12,7 +12,14 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - uses: pre-commit/action@v3.0.1
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
 
   test:
     needs: [lint]
@@ -31,7 +38,8 @@ jobs:
         sudo apt-get update
         sudo apt-get -qq install exiftool libgdal-dev libzbar0t64
         GDAL_VERSION=$(gdal-config --version)
-        pip install "gdal==${GDAL_VERSION}"
+        pip install -U setuptools wheel numpy
+        pip install --no-cache-dir --no-build-isolation "gdal==${GDAL_VERSION}"
     - name: Install package and test dependencies
       run: pip install -e ".[test]"
     - name: Test with pytest

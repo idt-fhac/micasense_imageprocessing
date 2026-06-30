@@ -10,3 +10,14 @@ __pycache__
 /_site/
 .idea
 docs/*.html
+
+# Top-level image files
+/*.tif
+/*.tiff
+/*.png
+/*.jpg
+/*.jpeg
+
+# Notebook outputs
+data/stacks/
+data/thumbnails/
